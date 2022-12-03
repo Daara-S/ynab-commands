@@ -1,7 +1,9 @@
 from enum import IntEnum
+from typing import Literal
 
 from pydantic import BaseModel
 
+FLAG_COLOR = Literal["red", "orange", "yellow", "green", "blue", "purple"]
 
 class DateFormat(BaseModel):
     format: str
@@ -76,7 +78,7 @@ class TransactionDetail(BaseModel):
     memo: str | None
     cleared: str # todo make enum
     approved: bool
-    flag_color: str | None # todo enum
+    flag_color: FLAG_COLOR
     account_id: str
     payee_id: str | None
     category_id: str | None

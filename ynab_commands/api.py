@@ -37,9 +37,10 @@ class BudgetApi:
         self._token = token
         self._session = session or requests_cache.CachedSession("ynab_cache")
 
-    def get_budgets(self, include_accounts: bool = False):
-        url = f"{self._base_url}/budgets?include_accounts={include_accounts}"
-        response_json = get(self._session, url, self._token)
+    def get_budgets(self, **kwargs):
+        url = f"{self._base_url}/budgets"
+        payload = parse_payload(**kwargs)
+        response_json = get(self._session, url, self._token, params=payload)
 
         return BudgetSummaryResponse(**response_json['data'])
 
