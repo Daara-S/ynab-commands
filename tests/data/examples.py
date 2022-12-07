@@ -137,3 +137,68 @@ EXAMPLE_TRANSACTION_LIST = {
         "server_knowledge": 0
     }
 }
+
+EXAMPLE_TRANSACTION = {
+    "data": {
+        "transaction": {
+            "id": "string",
+            "date": "string",
+            "amount": 0,
+            "memo": "string",
+            "cleared": "cleared",
+            "approved": True,
+            "flag_color": "red",
+            "account_id": "string",
+            "payee_id": "string",
+            "category_id": "string",
+            "transfer_account_id": "string",
+            "transfer_transaction_id": "string",
+            "matched_transaction_id": "string",
+            "import_id": "string",
+            "deleted": True,
+            "account_name": "string",
+            "payee_name": "string",
+            "category_name": "string",
+            "subtransactions": [
+                {
+                    "id": "string",
+                    "transaction_id": "string",
+                    "amount": 0,
+                    "memo": "string",
+                    "payee_id": "string",
+                    "payee_name": "string",
+                    "category_id": "string",
+                    "category_name": "string",
+                    "transfer_account_id": "string",
+                    "transfer_transaction_id": "string",
+                    "deleted": True
+                }
+            ]
+        }
+    }
+}
+
+EXAMPLE_UPDATED_TRANSACTION = {
+    "transaction": {
+        "account_id": "string",
+        "date": "string",
+        "amount": 0,
+        "payee_id": "string",
+        "payee_name": "string",
+        "category_id": "string",
+        "memo": "string",
+        "cleared": "cleared",
+        "approved": True,
+        "flag_color": "red",
+        "import_id": "string",
+        "subtransactions": [
+            {
+                "amount": 0,
+                "payee_id": "string",
+                "payee_name": "string",
+                "category_id": "string",
+                "memo": "string"
+            }
+        ]
+    }
+}

@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 FLAG_COLOR = Literal["red", "orange", "yellow", "green", "blue", "purple"]
 
+
 class DateFormat(BaseModel):
     format: str
 
@@ -56,41 +57,78 @@ class BudgetSummaryResponse(BaseModel):
     default_budget: BudgetSummary | None
 
 
-class SubTransaction(BaseModel):
-    id: str
-    transaction_id: str
+class BaseTransaction(BaseModel):
     amount: int
-    memo: str | None
+    category_id: str | None
     payee_id: str | None
     payee_name: str | None
-    category_id: str | None
+    memo: str | None
+
+
+class SaveSubTransaction(BaseTransaction):
+    amount: int
+
+
+class SubTransaction(BaseTransaction):
+    id: str
+    transaction_id: str
     category_name: str | None
     transfer_account_id: str | None
     transfer_transaction_id: str | None
     deleted: bool
 
 
+class SaveTransactionWrapper(BaseTransaction):
+    account_id: str
+    date: str
+    cleared: str | None
+    approved: bool
+    flag_color: FLAG_COLOR | None
+    import_id: str | None
+    subtransactions: list[SaveSubTransaction] | None
 
-class TransactionDetail(BaseModel):
+
+class TransactionDetail(BaseTransaction):
     id: str
     date: str
-    amount: int
-    memo: str | None
-    cleared: str # todo make enum
+    cleared: str  # todo make enum
     approved: bool
-    flag_color: FLAG_COLOR
+    flag_color: FLAG_COLOR | None
     account_id: str
-    payee_id: str | None
-    category_id: str | None
     transfer_account_id: str | None
     transfer_transaction_id: str | None
     matched_transaction_id: str | None
     import_id: str | None
     deleted: bool
     account_name: str
-    payee_name: str | None
     category_name: str | None
     subtransactions: list[SubTransaction]
+
+    def split_into_subtransaction(self, splitwise_id: str):
+        split_amount = self.amount / 2
+        personal_subtransaction = SaveSubTransaction(
+            amount=split_amount,
+            category_id=self.category_id,
+            payee_id=self.payee_id,
+            payee_name=self.payee_name,
+            memo=self.memo,
+        )
+        splitwise_subtransaction = SaveSubTransaction(
+            amount=split_amount,
+            category_id=splitwise_id,
+            payee_id=self.payee_id,
+            payee_name=self.payee_name,
+            memo="Auto-split",
+        )
+        return SaveTransactionWrapper(
+            amount=self.amount,
+            account_id=self.account_id,
+            date=self.date,
+            approved=False,
+            flag_color=None,
+            category_id=None,
+            subtransactions=[personal_subtransaction, splitwise_subtransaction]
+        )
 
 
 class TransactionsResponse(BaseModel):

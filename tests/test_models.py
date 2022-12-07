@@ -1,6 +1,8 @@
-from tests.data.examples import EXAMPLE_BUDGET_LIST, EXAMPLE_ACCOUNT, EXAMPLE_TRANSACTION_LIST
+import pytest
+
+from tests.data.examples import (EXAMPLE_BUDGET_LIST, EXAMPLE_ACCOUNT, EXAMPLE_TRANSACTION_LIST, EXAMPLE_TRANSACTION)
 from ynab_commands.models import (BudgetSummaryResponse, DateFormat, CurrencyFormat, Account, BudgetSummary,
-                                  TransactionsResponse, SubTransaction)
+                                  TransactionsResponse, SubTransaction, TransactionDetail)
 
 
 def test_budget_summary_response():
@@ -66,3 +68,13 @@ def test_transactions_response():
     assert transaction_response.transactions[0].subtransactions[0] == SubTransaction(
         **sample_data["data"]["transactions"][0]["subtransactions"][0])
     assert transaction_response.server_knowledge == sample_data["data"]["server_knowledge"]
+
+
+def test_split_into_subtransaction():
+    sample_data = dict(EXAMPLE_TRANSACTION)
+    transaction = TransactionDetail(**sample_data["data"]["transaction"])
+    splitwise_id = "663b5011-5381-429e-8a33-c1b037258c12"
+    updated_transaction = transaction.split_into_subtransaction(splitwise_id=splitwise_id)
+    assert updated_transaction.subtransactions[0].amount == pytest.approx(transaction.amount / 2)
+    assert updated_transaction.subtransactions[0].category_id == transaction.category_id
+    assert updated_transaction.subtransactions[1].category_id == splitwise_id

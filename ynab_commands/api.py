@@ -76,12 +76,15 @@ class BudgetApi:
 # test with converting a single transaction into a split transaction when filtering by flag_color
 
 if __name__ == "__main__":
+    # test budget: '80b59908-56af-4a84-90e4-ea00248c292c'
+    # splitwise_id: '663b5011-5381-429e-8a33-c1b037258c12'
     api = BudgetApi(token=BEARER)
-    x = api.get_budgets(include_accounts=False)
-    # response = api.get_transactions(budget_id="92629b87-5720-4845-b802-867240d1f293", since_date="2022-11-15")
-    # for tran in response.transactions:
-    #     if tran.flag_color is not None:
-    #         print('x')
-    #     if tran.subtransactions != []:
-    #         print('x')
+    # x = api.get_budgets(include_accounts=False)
+    response = api.get_transactions(budget_id="80b59908-56af-4a84-90e4-ea00248c292c", since_date="2022-11-15")
+    for tran in response.transactions:
+        if tran.flag_color == "purple":
+            purple_tran = tran
+            x = purple_tran.split_into_subtransaction(splitwise_id='663b5011-5381-429e-8a33-c1b037258c12')
+        if tran.subtransactions != []:
+            subtran = tran
     print('x')
