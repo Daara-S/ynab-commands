@@ -9,6 +9,11 @@ from ynab_commands.models import BudgetSummaryResponse, TransactionsResponse, Sa
 BEARER = "h-imXmpN2xiBk92Eq9ASs2epACVhXm8UGAa-Wgsp7yY"
 AUTH = ("Authorization", "Bearer %s")
 
+request_headers = {
+    "accept": "application/json",
+    "Authorization": "Bearer h-imXmpN2xiBk92Eq9ASs2epACVhXm8UGAa-Wgsp7yY",
+    "Content-Type": "application/json"
+}
 
 def parse_payload(**kwargs):
     data = {}
@@ -37,7 +42,7 @@ def put(
         url: str,
         token: str | None = None,
 ):
-    response = session.put(url=url, headers={"Authorization": f"Bearer {token}"}, data=data)
+    response = session.put(url=url, headers=request_headers, data=data)
     if response.status_code == 200:
         return response.json()
 
@@ -99,17 +104,20 @@ class BudgetApi:
         return TransactionDetail(**response_json["data"]["transaction"])
 
 
-# todo test new functionality locally, then on live with single and multiple transactions.
 
 if __name__ == "__main__":
-    # test budget: '80b59908-56af-4a84-90e4-ea00248c292c'
-    # splitwise_id: '663b5011-5381-429e-8a33-c1b037258c12'
+    test_budget = '80b59908-56af-4a84-90e4-ea00248c292c'
+    test_splitwise_id = '663b5011-5381-429e-8a33-c1b037258c12'
+    main_budget = "92629b87-5720-4845-b802-867240d1f293"
+    main_splitwise_id = "76a64c2c-e3d9-46d1-8742-04fb23dd388d"
+
+    # make sure to settle up budgets before running this
     api = BudgetApi(token=BEARER)
     # x = api.get_budgets(include_accounts=False)
-    response = api.get_transactions(budget_id="80b59908-56af-4a84-90e4-ea00248c292c", since_date="2022-11-15")
+    response = api.get_transactions(budget_id=main_budget, since_date="2022-11-21")
     for tran in response.transactions:
         if tran.flag_color == "purple" and tran.subtransactions == []:
-            updated_transaction = tran.split_into_subtransaction(splitwise_id='663b5011-5381-429e-8a33-c1b037258c12')
-            api.update_transaction(budget_id="80b59908-56af-4a84-90e4-ea00248c292c",
+            updated_transaction = tran.split_into_subtransaction(splitwise_id=main_splitwise_id)
+            api.update_transaction(budget_id=main_budget,
                                    transaction_id=tran.id,
                                    updated_transaction=updated_transaction)
