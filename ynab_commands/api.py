@@ -1,9 +1,10 @@
+import json
 from typing import Any
 
 import requests
 import requests_cache
 
-from ynab_commands.models import BudgetSummaryResponse, TransactionsResponse
+from ynab_commands.models import BudgetSummaryResponse, TransactionsResponse, SaveTransactionWrapper, TransactionDetail
 
 BEARER = "h-imXmpN2xiBk92Eq9ASs2epACVhXm8UGAa-Wgsp7yY"
 AUTH = ("Authorization", "Bearer %s")
@@ -30,8 +31,28 @@ def get(
     return response.ok
 
 
+def put(
+        data: Any,
+        session: requests.Session,
+        url: str,
+        token: str | None = None,
+):
+    response = session.put(url=url, headers={"Authorization": f"Bearer {token}"}, data=data)
+    if response.status_code == 200:
+        return response.json()
+
+    response.raise_for_status()
+    return response.ok
+
+
+def parse_transaction(updated_transaction):
+    payload = {}
+    payload["transaction"] = updated_transaction.dict()
+    return json.dumps(payload)
+
+
 class BudgetApi:
-    _base_url: str = "https://api.youneedabudget.com/v1/"
+    _base_url: str = "https://api.youneedabudget.com/v1"
 
     def __init__(self, token: str, session: requests.Session | None = None):
         self._token = token
@@ -66,14 +87,19 @@ class BudgetApi:
         url = f"{self._base_url}/budgets/{budget_id}/transactions"
         payload = parse_payload(**kwargs)
 
-        response_json = get(self._session, url, token=self._token,  params=payload)
+        response_json = get(self._session, url, token=self._token, params=payload)
 
         return TransactionsResponse(**response_json['data'])
 
+    def update_transaction(self, budget_id: str, transaction_id: str, updated_transaction: SaveTransactionWrapper):
+        url = f"{self._base_url}/budgets/{budget_id}/transactions/{transaction_id}"
+        data = parse_transaction(updated_transaction)
+        response_json = put(session=self._session, url=url, token=self._token, data=data)
 
-# todo
-# add tests similar to https://github.com/Doist/todoist-api-python/tree/39bd9975cb92184a984d22deb0328b9443b2d48c/tests
-# test with converting a single transaction into a split transaction when filtering by flag_color
+        return TransactionDetail(**response_json["data"]["transaction"])
+
+
+# todo test new functionality locally, then on live with single and multiple transactions.
 
 if __name__ == "__main__":
     # test budget: '80b59908-56af-4a84-90e4-ea00248c292c'
@@ -82,9 +108,8 @@ if __name__ == "__main__":
     # x = api.get_budgets(include_accounts=False)
     response = api.get_transactions(budget_id="80b59908-56af-4a84-90e4-ea00248c292c", since_date="2022-11-15")
     for tran in response.transactions:
-        if tran.flag_color == "purple":
-            purple_tran = tran
-            x = purple_tran.split_into_subtransaction(splitwise_id='663b5011-5381-429e-8a33-c1b037258c12')
-        if tran.subtransactions != []:
-            subtran = tran
-    print('x')
+        if tran.flag_color == "purple" and tran.subtransactions == []:
+            updated_transaction = tran.split_into_subtransaction(splitwise_id='663b5011-5381-429e-8a33-c1b037258c12')
+            api.update_transaction(budget_id="80b59908-56af-4a84-90e4-ea00248c292c",
+                                   transaction_id=tran.id,
+                                   updated_transaction=updated_transaction)
