@@ -3,17 +3,20 @@ from typing import Any
 
 import requests
 import requests_cache
+from dotenv import dotenv_values
+from datetime import datetime, timedelta
+
 
 from ynab_commands.models import BudgetSummaryResponse, TransactionsResponse, SaveTransactionWrapper, TransactionDetail
 
 BEARER = "h-imXmpN2xiBk92Eq9ASs2epACVhXm8UGAa-Wgsp7yY"
-AUTH = ("Authorization", "Bearer %s")
 
 request_headers = {
     "accept": "application/json",
     "Authorization": "Bearer h-imXmpN2xiBk92Eq9ASs2epACVhXm8UGAa-Wgsp7yY",
     "Content-Type": "application/json"
 }
+
 
 def parse_payload(**kwargs):
     data = {}
@@ -104,20 +107,38 @@ class BudgetApi:
         return TransactionDetail(**response_json["data"]["transaction"])
 
 
-
 if __name__ == "__main__":
-    test_budget = '80b59908-56af-4a84-90e4-ea00248c292c'
-    test_splitwise_id = '663b5011-5381-429e-8a33-c1b037258c12'
-    main_budget = "92629b87-5720-4845-b802-867240d1f293"
-    main_splitwise_id = "76a64c2c-e3d9-46d1-8742-04fb23dd388d"
-
+    config = dotenv_values("prod.env")
+    two_week_backdate = datetime.today() - timedelta(weeks=2)
     # make sure to settle up budgets before running this
     api = BudgetApi(token=BEARER)
-    # x = api.get_budgets(include_accounts=False)
-    response = api.get_transactions(budget_id=main_budget, since_date="2022-11-21")
+    completed_transactions = 0
+    response = api.get_transactions(budget_id=config["BUDGET_ID"],
+                                    since_date=str(two_week_backdate.date()))
     for tran in response.transactions:
         if tran.flag_color == "purple" and tran.subtransactions == []:
-            updated_transaction = tran.split_into_subtransaction(splitwise_id=main_splitwise_id)
-            api.update_transaction(budget_id=main_budget,
+            updated_transaction = tran.split_into_subtransaction(splitwise_id=config["SPLITWISE_ID"])
+            api.update_transaction(budget_id=config["BUDGET_ID"],
                                    transaction_id=tran.id,
                                    updated_transaction=updated_transaction)
+            completed_transactions += 1
+    print(f"Processed {completed_transactions} transactions")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

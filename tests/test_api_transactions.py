@@ -8,7 +8,7 @@ budget_id = "1234"
 def test_get_transactions(budget_api, requests_mock, transactions_response_json, transactions_response):
     requests_mock.add(
         responses.GET,
-        f"{REST_API_BASE_URL}/budgets/{budget_id}/transactions",
+        f"{REST_API_BASE_URL}budgets/{budget_id}/transactions",
         json=transactions_response_json,
         status=200
     )
@@ -22,7 +22,7 @@ def test_get_transactions(budget_api, requests_mock, transactions_response_json,
 def test_get_budgets(budget_api, requests_mock, budget_summary_json, budget_summary):
     requests_mock.add(
         responses.GET,
-        f"{REST_API_BASE_URL}/budgets",
+        f"{REST_API_BASE_URL}budgets",
         json=budget_summary_json,
         status=200
     )
