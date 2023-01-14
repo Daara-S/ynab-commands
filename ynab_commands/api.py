@@ -6,6 +6,7 @@ import requests_cache
 from dotenv import dotenv_values
 from datetime import datetime, timedelta
 
+from requests import Session
 
 from ynab_commands.models import BudgetSummaryResponse, TransactionsResponse, SaveTransactionWrapper, TransactionDetail
 
@@ -111,7 +112,7 @@ if __name__ == "__main__":
     config = dotenv_values("prod.env")
     two_week_backdate = datetime.today() - timedelta(weeks=2)
     # make sure to settle up budgets before running this
-    api = BudgetApi(token=BEARER)
+    api = BudgetApi(token=BEARER, session=Session())
     completed_transactions = 0
     response = api.get_transactions(budget_id=config["BUDGET_ID"],
                                     since_date=str(two_week_backdate.date()))
