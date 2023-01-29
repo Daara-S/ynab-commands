@@ -1,4 +1,4 @@
 *.sqlite
 .pytest_cache
 .idea
-*.env
+prod.env
