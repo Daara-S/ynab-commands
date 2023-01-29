@@ -109,7 +109,7 @@ class BudgetApi:
 
 
 if __name__ == "__main__":
-    config = dotenv_values("prod.env")
+    config = dotenv_values("../prod.env")
     two_week_backdate = datetime.today() - timedelta(weeks=2)
     # make sure to settle up budgets before running this
     api = BudgetApi(token=BEARER, session=Session())
