@@ -10,11 +10,11 @@ from requests import Session
 
 from ynab_commands.models import BudgetSummaryResponse, TransactionsResponse, SaveTransactionWrapper, TransactionDetail
 
-BEARER = "h-imXmpN2xiBk92Eq9ASs2epACVhXm8UGAa-Wgsp7yY"
+BEARER = "dummy_bearer"
 
 request_headers = {
     "accept": "application/json",
-    "Authorization": "Bearer h-imXmpN2xiBk92Eq9ASs2epACVhXm8UGAa-Wgsp7yY",
+    "Authorization": "Bearer dummy_bearer",
     "Content-Type": "application/json"
 }
 
