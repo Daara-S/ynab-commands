@@ -124,9 +124,10 @@ class TransactionDetail(BaseTransaction):
             amount=self.amount,
             account_id=self.account_id,
             date=self.date,
-            approved=False,
+            approved=True,
             flag_color=None,
             category_id=None,
+            cleared="cleared",
             subtransactions=[personal_subtransaction, splitwise_subtransaction]
         )
 
