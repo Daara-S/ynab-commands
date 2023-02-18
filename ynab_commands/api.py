@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 from typing import Any
 
 import requests
@@ -8,15 +9,12 @@ from datetime import datetime, timedelta
 
 from requests import Session
 
-from ynab_commands.models import BudgetSummaryResponse, TransactionsResponse, SaveTransactionWrapper, TransactionDetail
-
-BEARER = "dummy_bearer"
-
-request_headers = {
-    "accept": "application/json",
-    "Authorization": "Bearer dummy_bearer",
-    "Content-Type": "application/json"
-}
+from ynab_commands.models import (
+    BudgetSummaryResponse,
+    TransactionsResponse,
+    SaveTransactionWrapper,
+    TransactionDetail,
+)
 
 
 def parse_payload(**kwargs):
@@ -26,12 +24,14 @@ def parse_payload(**kwargs):
 
 
 def get(
-        session: requests.Session,
-        url: str,
-        token: str | None = None,
-        params: dict[str, Any] | None = None,
+    session: requests.Session,
+    url: str,
+    token: str | None = None,
+    params: dict[str, Any] | None = None,
 ):
-    response = session.get(url=url, params=params, headers={"Authorization": f"Bearer {token}"})
+    response = session.get(
+        url=url, params=params, headers={"Authorization": f"Bearer {token}"}
+    )
 
     if response.status_code == 200:
         return response.json()
@@ -41,12 +41,17 @@ def get(
 
 
 def put(
-        data: Any,
-        session: requests.Session,
-        url: str,
-        token: str | None = None,
+    data: Any,
+    session: requests.Session,
+    url: str,
+    token: str | None = None,
 ):
-    response = session.put(url=url, headers=request_headers, data=data)
+    headers = {
+        "accept": "application/json",
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+    }
+    response = session.put(url=url, headers=headers, data=data)
     if response.status_code == 200:
         return response.json()
 
@@ -72,10 +77,10 @@ class BudgetApi:
         payload = parse_payload(**kwargs)
         response_json = get(self._session, url, self._token, params=payload)
 
-        return BudgetSummaryResponse(**response_json['data'])
+        return BudgetSummaryResponse(**response_json["data"])
 
     def get_transactions(self, budget_id: str, **kwargs):
-        """ Returns budget transactions
+        """Returns budget transactions
 
         param budget_id:
             The id of the budget.
@@ -98,48 +103,41 @@ class BudgetApi:
 
         response_json = get(self._session, url, token=self._token, params=payload)
 
-        return TransactionsResponse(**response_json['data'])
+        return TransactionsResponse(**response_json["data"])
 
-    def update_transaction(self, budget_id: str, transaction_id: str, updated_transaction: SaveTransactionWrapper):
+    def update_transaction(
+        self,
+        budget_id: str,
+        transaction_id: str,
+        updated_transaction: SaveTransactionWrapper,
+    ):
         url = f"{self._base_url}/budgets/{budget_id}/transactions/{transaction_id}"
         data = parse_transaction(updated_transaction)
-        response_json = put(session=self._session, url=url, token=self._token, data=data)
+        response_json = put(
+            session=self._session, url=url, token=self._token, data=data
+        )
 
         return TransactionDetail(**response_json["data"]["transaction"])
 
 
 if __name__ == "__main__":
-    config = dotenv_values("../prod.env")
-    two_week_backdate = datetime.today() - timedelta(weeks=2)
+    config = dotenv_values(Path(__file__).parent.parent / "prod.env")
+    two_week_backdate = datetime.today() - timedelta(weeks=4)
     # make sure to settle up budgets before running this
-    api = BudgetApi(token=BEARER, session=Session())
+    api = BudgetApi(token=config["BEARER_ID"], session=Session())
     completed_transactions = 0
-    response = api.get_transactions(budget_id=config["BUDGET_ID"],
-                                    since_date=str(two_week_backdate.date()))
+    response = api.get_transactions(
+        budget_id=config["BUDGET_ID"], since_date=str(two_week_backdate.date())
+    )
     for tran in response.transactions:
         if tran.flag_color == "purple" and tran.subtransactions == []:
-            updated_transaction = tran.split_into_subtransaction(splitwise_id=config["SPLITWISE_ID"])
-            api.update_transaction(budget_id=config["BUDGET_ID"],
-                                   transaction_id=tran.id,
-                                   updated_transaction=updated_transaction)
+            updated_transaction = tran.split_into_subtransaction(
+                splitwise_id=config["SPLITWISE_ID"]
+            )
+            api.update_transaction(
+                budget_id=config["BUDGET_ID"],
+                transaction_id=tran.id,
+                updated_transaction=updated_transaction,
+            )
             completed_transactions += 1
     print(f"Processed {completed_transactions} transactions")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
