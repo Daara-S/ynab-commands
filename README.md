@@ -1,3 +1,4 @@
 ## Todo
-- set cleared to true for split transactions
-- add config file to parse bearer token from dotenv
+- [x] set cleared to true for split transactions
+- [ ] parse budget ID, category, and bearer token from dotenv using BaseSettings
+- [ ] add typer CLI script

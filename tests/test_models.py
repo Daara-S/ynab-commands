@@ -74,7 +74,7 @@ def test_split_into_subtransaction():
     sample_data = dict(EXAMPLE_TRANSACTION)
     transaction = TransactionDetail(**sample_data["data"]["transaction"])
     splitwise_id = "663b5011-5381-429e-8a33-c1b037258c12"
-    updated_transaction = transaction.split_into_subtransaction(splitwise_id=splitwise_id)
+    updated_transaction = transaction.split(splitwise_id=splitwise_id)
     assert updated_transaction.subtransactions[0].amount == pytest.approx(transaction.amount / 2)
     assert updated_transaction.subtransactions[0].category_id == transaction.category_id
     assert updated_transaction.subtransactions[1].category_id == splitwise_id
