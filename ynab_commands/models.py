@@ -104,7 +104,7 @@ class TransactionDetail(BaseTransaction):
     category_name: str | None
     subtransactions: list[SubTransaction]
 
-    def split_into_subtransaction(self, splitwise_id: str) -> SaveTransactionWrapper:
+    def split(self, splitwise_id: str) -> SaveTransactionWrapper:
         split_amount = self.amount / 2
         personal_subtransaction = SaveSubTransaction(
             amount=split_amount,
