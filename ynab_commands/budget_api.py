@@ -96,7 +96,7 @@ class BudgetApi:
         url = f"{self._base_url}/budgets/{budget_id}/transactions"
         payload = parse_payload(**kwargs)
 
-        response_json = get(self._session, url, token=self._token, params=payload)
+        response_json = get(session=self._session, url=url, token=self._token, params=payload)
 
         return TransactionsResponse(**response_json["data"])
 
