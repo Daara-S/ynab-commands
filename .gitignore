@@ -1,7 +1,6 @@
 *.sqlite
 .pytest_cache
 .idea
-prod.env
 __pycache__
 .vscode
 *.env

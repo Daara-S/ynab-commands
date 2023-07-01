@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from pathlib import Path
 
+import typer
 from dotenv import dotenv_values
 from requests import Session
 
@@ -14,7 +15,7 @@ def get_date(weeks: int = 4) -> str:
     return str(backdate.date())
 
 
-if __name__ == "__main__":
+def main():
     config = dotenv_values(Path(__file__).parent.parent / ENV_FILE)
     api = BudgetApi(token=config["BEARER_ID"], session=Session())
 
@@ -34,3 +35,7 @@ if __name__ == "__main__":
             )
             completed_transactions += 1
     print(f"Processed {completed_transactions} transactions")
+
+
+if __name__ == "__main__":
+    typer.run(main)
