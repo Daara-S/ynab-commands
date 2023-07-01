@@ -3,6 +3,7 @@ from typing import Any
 
 import requests
 import requests_cache
+from pydantic.types import SecretStr
 
 from ynab_commands.models import (
     BudgetSummaryResponse,
@@ -21,11 +22,11 @@ def parse_payload(**kwargs):
 def get(
     session: requests.Session,
     url: str,
-    token: str | None = None,
+    token: SecretStr | None = None,
     params: dict[str, Any] | None = None,
 ):
     response = session.get(
-        url=url, params=params, headers={"Authorization": f"Bearer {token}"}
+        url=url, params=params, headers={"Authorization": f"Bearer {token.get_secret_value()}"}
     )
 
     if response.status_code == 200:
@@ -39,11 +40,11 @@ def put(
     data: Any,
     session: requests.Session,
     url: str,
-    token: str | None = None,
+    token: SecretStr | None = None,
 ):
     headers = {
         "accept": "application/json",
-        "Authorization": f"Bearer {token}",
+        "Authorization": f"Bearer {token.get_secret_value()}",
         "Content-Type": "application/json",
     }
     response = session.put(url=url, headers=headers, data=data)
@@ -63,7 +64,7 @@ def parse_transaction(updated_transaction):
 class BudgetApi:
     _base_url: str = "https://api.youneedabudget.com/v1"
 
-    def __init__(self, token: str, session: requests.Session | None = None):
+    def __init__(self, token: SecretStr, session: requests.Session | None = None):
         self._token = token
         self._session = session or requests_cache.CachedSession("ynab_cache")
 

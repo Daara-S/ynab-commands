@@ -1,13 +1,13 @@
+import os
 from datetime import datetime, timedelta
-from pathlib import Path
 
 import typer
-from dotenv import dotenv_values
 from requests import Session
 
+from config import configs
 from ynab_commands.budget_api import BudgetApi
 
-ENV_FILE = "test.env"
+config = configs[os.getenv('ENV', 'Test')]
 
 
 def get_date(weeks: int = 4) -> str:
@@ -16,20 +16,20 @@ def get_date(weeks: int = 4) -> str:
 
 
 def main():
-    config = dotenv_values(Path(__file__).parent.parent / ENV_FILE)
-    api = BudgetApi(token=config["BEARER_ID"], session=Session())
+    api = BudgetApi(token=config.bearer_id, session=Session())
 
     completed_transactions = 0
     response = api.get_transactions(
-        budget_id=config["BUDGET_ID"], since_date=get_date(weeks=4)
+        budget_id=config.budget_id, since_date=get_date(weeks=4)
     )
+
     for transaction in response.transactions:
         if transaction.flag_color == "purple" and transaction.subtransactions == []:
             updated_transaction = transaction.split(
-                splitwise_id=config["SPLITWISE_ID"]
+                splitwise_id=config.splitwise_id
             )
             api.update_transaction(
-                budget_id=config["BUDGET_ID"],
+                budget_id=config.budget_id,
                 transaction_id=transaction.id,
                 updated_transaction=updated_transaction,
             )

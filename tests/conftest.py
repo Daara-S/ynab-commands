@@ -2,7 +2,7 @@ import pytest
 import responses
 from requests import Session
 
-from tests.data.defaults import DEFAULT_TOKEN
+from config import TestConfig
 from ynab_commands.budget_api import BudgetApi
 
 
@@ -14,4 +14,4 @@ def requests_mock():
 
 @pytest.fixture()
 def budget_api() -> BudgetApi:
-    return BudgetApi(DEFAULT_TOKEN, session=Session())
+    return BudgetApi(token=TestConfig.bearer_id, session=Session())
