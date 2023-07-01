@@ -78,3 +78,9 @@ def test_split_into_subtransaction():
     assert updated_transaction.subtransactions[0].amount == pytest.approx(transaction.amount / 2)
     assert updated_transaction.subtransactions[0].category_id == transaction.category_id
     assert updated_transaction.subtransactions[1].category_id == splitwise_id
+
+def test_total_transactions():
+    sample_data = dict(EXAMPLE_TRANSACTION_LIST)
+    sample_data['data']["transactions"].append(sample_data['data']["transactions"][0])
+    transaction_response = TransactionsResponse(**sample_data["data"])
+    assert transaction_response.total_transactions == 2

@@ -135,3 +135,7 @@ class TransactionDetail(BaseTransaction):
 class TransactionsResponse(BaseModel):
     transactions: list[TransactionDetail]
     server_knowledge: int
+
+    @property
+    def total_transactions(self) -> int:
+        return len(self.transactions)

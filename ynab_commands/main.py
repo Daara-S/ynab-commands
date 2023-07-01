@@ -18,7 +18,6 @@ def get_date(weeks: int = 4) -> str:
 def main():
     api = BudgetApi(token=config.bearer_id, session=Session())
 
-    completed_transactions = 0
     response = api.get_transactions(
         budget_id=config.budget_id, since_date=get_date(weeks=4)
     )
@@ -33,8 +32,7 @@ def main():
                 transaction_id=transaction.id,
                 updated_transaction=updated_transaction,
             )
-            completed_transactions += 1
-    print(f"Processed {completed_transactions} transactions")
+    print(f"Processed {response.total_transactions} transactions")
 
 
 if __name__ == "__main__":
