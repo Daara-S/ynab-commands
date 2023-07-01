@@ -21,7 +21,6 @@ def main():
     response = api.get_transactions(
         budget_id=config.budget_id, since_date=get_date(weeks=4)
     )
-
     for transaction in response.transactions:
         if transaction.flag_color == "purple" and transaction.subtransactions == []:
             updated_transaction = transaction.split(

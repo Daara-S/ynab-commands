@@ -40,35 +40,6 @@ def test_account():
     assert account.deleted == sample_data["deleted"]
 
 
-def test_transactions_response():
-    sample_data = dict(EXAMPLE_TRANSACTION_LIST)
-    transaction_response = TransactionsResponse(**sample_data["data"])
-
-    assert transaction_response.transactions[0].id == sample_data["data"]["transactions"][0]["id"]
-    assert transaction_response.transactions[0].date == sample_data["data"]["transactions"][0]["date"]
-    assert transaction_response.transactions[0].amount == sample_data["data"]["transactions"][0]["amount"]
-    assert transaction_response.transactions[0].memo == sample_data["data"]["transactions"][0]["memo"]
-    assert transaction_response.transactions[0].cleared == sample_data["data"]["transactions"][0]["cleared"]
-    assert transaction_response.transactions[0].approved == sample_data["data"]["transactions"][0]["approved"]
-    assert transaction_response.transactions[0].flag_color == sample_data["data"]["transactions"][0]["flag_color"]
-    assert transaction_response.transactions[0].account_id == sample_data["data"]["transactions"][0]["account_id"]
-    assert transaction_response.transactions[0].payee_id == sample_data["data"]["transactions"][0]["payee_id"]
-    assert transaction_response.transactions[0].category_id == sample_data["data"]["transactions"][0]["category_id"]
-    assert transaction_response.transactions[0].transfer_account_id == sample_data["data"]["transactions"][0][
-        "transfer_account_id"]
-    assert transaction_response.transactions[0].transfer_transaction_id == sample_data["data"]["transactions"][0][
-        "transfer_transaction_id"]
-    assert transaction_response.transactions[0].matched_transaction_id == sample_data["data"]["transactions"][0][
-        "matched_transaction_id"]
-    assert transaction_response.transactions[0].import_id == sample_data["data"]["transactions"][0]["import_id"]
-    assert transaction_response.transactions[0].deleted == sample_data["data"]["transactions"][0]["deleted"]
-    assert transaction_response.transactions[0].account_name == sample_data["data"]["transactions"][0]["account_name"]
-    assert transaction_response.transactions[0].payee_name == sample_data["data"]["transactions"][0]["payee_name"]
-    assert transaction_response.transactions[0].category_name == sample_data["data"]["transactions"][0]["category_name"]
-    assert transaction_response.transactions[0].subtransactions[0] == SubTransaction(
-        **sample_data["data"]["transactions"][0]["subtransactions"][0])
-    assert transaction_response.server_knowledge == sample_data["data"]["server_knowledge"]
-
 
 def test_split_into_subtransaction():
     sample_data = dict(EXAMPLE_TRANSACTION)
@@ -79,8 +50,47 @@ def test_split_into_subtransaction():
     assert updated_transaction.subtransactions[0].category_id == transaction.category_id
     assert updated_transaction.subtransactions[1].category_id == splitwise_id
 
-def test_total_transactions():
-    sample_data = dict(EXAMPLE_TRANSACTION_LIST)
-    sample_data['data']["transactions"].append(sample_data['data']["transactions"][0])
-    transaction_response = TransactionsResponse(**sample_data["data"])
-    assert transaction_response.total_transactions == 2
+class TestTransactionsResponse:
+    def test_transactions_response(self):
+        sample_data = dict(EXAMPLE_TRANSACTION_LIST)
+        transaction_response = TransactionsResponse(**sample_data["data"])
+
+        assert transaction_response.transactions[0].id == sample_data["data"]["transactions"][0]["id"]
+        assert transaction_response.transactions[0].date == sample_data["data"]["transactions"][0]["date"]
+        assert transaction_response.transactions[0].amount == sample_data["data"]["transactions"][0]["amount"]
+        assert transaction_response.transactions[0].memo == sample_data["data"]["transactions"][0]["memo"]
+        assert transaction_response.transactions[0].cleared == sample_data["data"]["transactions"][0]["cleared"]
+        assert transaction_response.transactions[0].approved == sample_data["data"]["transactions"][0]["approved"]
+        assert transaction_response.transactions[0].flag_color == sample_data["data"]["transactions"][0]["flag_color"]
+        assert transaction_response.transactions[0].account_id == sample_data["data"]["transactions"][0]["account_id"]
+        assert transaction_response.transactions[0].payee_id == sample_data["data"]["transactions"][0]["payee_id"]
+        assert transaction_response.transactions[0].category_id == sample_data["data"]["transactions"][0]["category_id"]
+        assert transaction_response.transactions[0].transfer_account_id == sample_data["data"]["transactions"][0][
+            "transfer_account_id"]
+        assert transaction_response.transactions[0].transfer_transaction_id == sample_data["data"]["transactions"][0][
+            "transfer_transaction_id"]
+        assert transaction_response.transactions[0].matched_transaction_id == sample_data["data"]["transactions"][0][
+            "matched_transaction_id"]
+        assert transaction_response.transactions[0].import_id == sample_data["data"]["transactions"][0]["import_id"]
+        assert transaction_response.transactions[0].deleted == sample_data["data"]["transactions"][0]["deleted"]
+        assert transaction_response.transactions[0].account_name == sample_data["data"]["transactions"][0][
+            "account_name"]
+        assert transaction_response.transactions[0].payee_name == sample_data["data"]["transactions"][0]["payee_name"]
+        assert transaction_response.transactions[0].category_name == sample_data["data"]["transactions"][0][
+            "category_name"]
+        assert transaction_response.transactions[0].subtransactions[0] == SubTransaction(
+            **sample_data["data"]["transactions"][0]["subtransactions"][0])
+        assert transaction_response.server_knowledge == sample_data["data"]["server_knowledge"]
+    def test_total_transactions(self):
+        sample_data = dict(EXAMPLE_TRANSACTION_LIST)
+        sample_data['data']["transactions"].append(sample_data['data']["transactions"][0])
+        transaction_response = TransactionsResponse(**sample_data["data"])
+        assert transaction_response.total_transactions == 2
+
+    def test_total_accounts(self):
+        sample_data = dict(EXAMPLE_TRANSACTION_LIST)
+        sample_data['data']["transactions"].append(EXAMPLE_TRANSACTION["data"]["transaction"])
+        sample_data['data']["transactions"][0]['account_id'] = "account1"
+        sample_data['data']["transactions"][1]['account_id'] = "account2"
+        transaction_response = TransactionsResponse(**sample_data["data"])
+        assert transaction_response.total_accounts == 2

@@ -139,3 +139,8 @@ class TransactionsResponse(BaseModel):
     @property
     def total_transactions(self) -> int:
         return len(self.transactions)
+
+    @property
+    def total_accounts(self) -> int:
+        accounts = set([transaction.account_id for transaction in self.transactions])
+        return len(accounts)
