@@ -1,6 +1,5 @@
 import responses
-
-from models import TransactionsResponse, BudgetSummaryResponse
+from ynab_commands.models import TransactionsResponse, BudgetSummaryResponse
 from tests.data.defaults import REST_API_BASE_URL, DEFAULT_TOKEN
 from tests.data.examples import EXAMPLE_TRANSACTION_LIST, EXAMPLE_BUDGET_LIST
 

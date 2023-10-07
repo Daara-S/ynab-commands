@@ -19,6 +19,10 @@ pytest = "^7.2.0"
 responses = "^0.22.0"
 black = "^23.1.0"
 
+[tool.pyright]
+include = ["ynab_commands"]
+venv = ".venv"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
