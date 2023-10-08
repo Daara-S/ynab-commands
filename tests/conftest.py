@@ -2,7 +2,7 @@ import pytest
 import responses
 from requests import Session
 
-from config import TestConfig
+from ynab_commands.config import TestConfig
 from ynab_commands.budget_api import BudgetApi
 
 

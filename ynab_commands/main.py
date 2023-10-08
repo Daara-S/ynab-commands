@@ -8,7 +8,7 @@ from config import configs
 from models import TransactionDetail
 from ynab_commands.budget_api import BudgetApi
 
-config = configs[os.getenv('ENV', 'Test')]
+config = configs[os.getenv('ENV', 'Prod')]
 
 
 def get_date(weeks: int = 4) -> str:

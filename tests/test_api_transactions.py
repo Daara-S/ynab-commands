@@ -1,9 +1,9 @@
 import responses
+from ynab_commands.config import TestConfig
+from ynab_commands.models import BudgetSummaryResponse, TransactionsResponse
 
-from config import TestConfig
-from models import TransactionsResponse, BudgetSummaryResponse
 from tests.data.defaults import REST_API_BASE_URL
-from tests.data.examples import EXAMPLE_TRANSACTION_LIST, EXAMPLE_BUDGET_LIST
+from tests.data.examples import EXAMPLE_BUDGET_LIST, EXAMPLE_TRANSACTION_LIST
 
 budget_id = "1234"
 
