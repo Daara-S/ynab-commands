@@ -6,7 +6,7 @@ from requests import Session
 
 from ynab_commands.budget_api import BudgetApi
 
-ENV_FILE = "test.env"
+ENV_FILE = "prod.env"
 
 
 def get_date(weeks: int = 4) -> str:
