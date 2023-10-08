@@ -63,6 +63,8 @@ def parse_transaction(updated_transaction):
 
 class BudgetApi:
     _base_url: str = "https://api.youneedabudget.com/v1"
+    _token: str
+    _session: requests.Session | None
 
     def __init__(self, token: SecretStr, session: requests.Session | None = None):
         self._token = token
