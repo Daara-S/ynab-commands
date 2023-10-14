@@ -1,4 +1,4 @@
 ## Todo
-- [x] set cleared to true for split transactions
-- [ ] parse budget ID, category, and bearer token from dotenv using BaseSettings
-- [ ] add typer CLI script
+- Remove typer as a CLI parser, use the python builtin instead
+- sum up totals on each account to add to splitwise
+- add splitwise API to automatically send that total to be split equally
