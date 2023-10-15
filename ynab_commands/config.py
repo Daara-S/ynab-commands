@@ -10,6 +10,10 @@ class Config(BaseSettings):
     bearer_id: SecretStr
     budget_id: str
     splitwise_id: str
+    splitwise_consumer_key: SecretStr
+    splitwise_consumer_secret: SecretStr
+    splitwise_api_key: SecretStr
+
 
 
 TestConfig = Config(_env_file=ENV_DIR / 'test.env')

@@ -3,6 +3,9 @@ import os
 from datetime import datetime, timedelta
 from typing import Counter
 
+from splitwise import Splitwise
+from splitwise.expense import Expense
+
 from config import configs
 from models import TransactionDetail
 from requests import Session
@@ -22,6 +25,11 @@ def currency(amount: int) -> float:
 class BudgetSync:
     def __init__(self) -> None:
         self.api = BudgetApi(token=CONFIG.bearer_id, session=Session())
+        self.splitwise_api = Splitwise(
+            CONFIG.splitwise_consumer_key.get_secret_value(),
+            CONFIG.splitwise_consumer_secret.get_secret_value(),
+            api_key=CONFIG.splitwise_api_key.get_secret_value()
+        )
         self.parser = argparse.ArgumentParser(prog="YNAB Commands", description="Split YNAB transactions")
 
     def run(self):
@@ -70,10 +78,17 @@ class BudgetSync:
                 transaction_id=transaction.id,
                 updated_transaction=updated_transaction,
             )
+            self.add_to_splitwise()
 
         print(f"Processed {len(filtered_transactions)} transactions")
         print(f"Add £{currency(transaction_total):.2f} to splitwise")
 
+    def add_to_splitwise(self):
+        # friend = [
+        #     friend for friend in self.splitwise_api.getFriends() 
+        #     if friend.first_name == "Jasperi"
+        # ]
+        pass
 
 if __name__ == "__main__":
     app = BudgetSync()
