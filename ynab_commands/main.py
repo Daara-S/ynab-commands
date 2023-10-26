@@ -3,14 +3,12 @@ import os
 from datetime import datetime, timedelta
 from typing import Counter
 
-from splitwise import Splitwise
-from splitwise.expense import Expense
-
-from config import configs
-from models import TransactionDetail
 from requests import Session
+from splitwise import Splitwise
 
 from ynab_commands.budget_api import BudgetApi
+from ynab_commands.config import configs
+from ynab_commands.models import TransactionDetail
 
 CONFIG = configs[os.getenv('ENV', 'Prod')]
 
@@ -90,7 +88,10 @@ class BudgetSync:
         # ]
         pass
 
-if __name__ == "__main__":
+def run():
     app = BudgetSync()
     app.run()
+
+if __name__ == "__main__":
+    run()
 
