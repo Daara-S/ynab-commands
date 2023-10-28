@@ -61,7 +61,7 @@ def parse_transaction(updated_transaction):
     return json.dumps(payload)
 
 
-class BudgetApi:
+class YNABApi:
     _base_url: str = "https://api.youneedabudget.com/v1"
     _token: str
     _session: requests.Session | None
