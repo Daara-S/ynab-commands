@@ -9,6 +9,7 @@ ENV_DIR = Path(__file__).parents[1]
 class Config(BaseSettings):
     bearer_id: SecretStr
     budget_id: str
+    ynab_sw_account_id: str
     splitwise_id: str
     splitwise_consumer_key: SecretStr
     splitwise_consumer_secret: SecretStr

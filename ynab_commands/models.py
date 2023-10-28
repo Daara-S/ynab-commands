@@ -105,7 +105,7 @@ class TransactionDetail(BaseTransaction):
     subtransactions: list[SubTransaction]
 
     def split(self, splitwise_id: str) -> SaveTransactionWrapper:
-        split_amount = self.amount / 2
+        split_amount = self.amount // 2
         personal_subtransaction = SaveSubTransaction(
             amount=split_amount,
             category_id=self.category_id,
@@ -121,6 +121,10 @@ class TransactionDetail(BaseTransaction):
             memo="Auto-split",
         )
         return SaveTransactionWrapper(
+            payee_id=None,
+            payee_name=None,
+            memo=None,
+            import_id=None,
             amount=self.amount,
             account_id=self.account_id,
             date=self.date,

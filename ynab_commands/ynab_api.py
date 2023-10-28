@@ -6,6 +6,7 @@ import requests_cache
 from pydantic.types import SecretStr
 
 from ynab_commands.models import (
+    Account,
     BudgetSummaryResponse,
     TransactionsResponse,
     SaveTransactionWrapper,
@@ -22,25 +23,24 @@ def parse_payload(**kwargs):
 def get(
     session: requests.Session,
     url: str,
-    token: SecretStr | None = None,
-    params: dict[str, Any] | None = None,
+    token: SecretStr,
+    params: dict[str, Any],
 ):
     response = session.get(
         url=url, params=params, headers={"Authorization": f"Bearer {token.get_secret_value()}"}
     )
 
-    if response.status_code == 200:
-        return response.json()
+    if response.status_code != 200:
+        raise requests.RequestException
 
-    response.raise_for_status()
-    return response.ok
+    return response.json()
 
 
 def put(
     data: Any,
     session: requests.Session,
     url: str,
-    token: SecretStr | None = None,
+    token: SecretStr,
 ):
     headers = {
         "accept": "application/json",
@@ -48,11 +48,10 @@ def put(
         "Content-Type": "application/json",
     }
     response = session.put(url=url, headers=headers, data=data)
-    if response.status_code == 200:
-        return response.json()
+    if response.status_code != 200:
+        raise requests.RequestException
 
-    response.raise_for_status()
-    return response.ok
+    return response.json()
 
 
 def parse_transaction(updated_transaction):
@@ -63,8 +62,8 @@ def parse_transaction(updated_transaction):
 
 class YNABApi:
     _base_url: str = "https://api.youneedabudget.com/v1"
-    _token: str
-    _session: requests.Session | None
+    _token: SecretStr
+    _session: requests.Session
 
     def __init__(self, token: SecretStr, session: requests.Session | None = None):
         self._token = token
@@ -76,6 +75,13 @@ class YNABApi:
         response_json = get(self._session, url, self._token, params=payload)
 
         return BudgetSummaryResponse(**response_json["data"])
+
+    def get_account(self, budget_id: str, account_id: str, **kwargs):
+        url = f"{self._base_url}/budgets/{budget_id}/accounts/{account_id}"
+        payload = parse_payload(**kwargs)
+        response_json = get(self._session, url, self._token, params=payload)
+
+        return Account(**response_json["data"]["account"])
 
     def get_transactions(self, budget_id: str, **kwargs):
         """Returns budget transactions

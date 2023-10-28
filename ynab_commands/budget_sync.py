@@ -18,6 +18,9 @@ def get_date(weeks: int) -> str:
 def currency(amount: int) -> float:
     return abs(amount / 1000.0)
 
+def milliunits(amount: float | str) -> int:
+    value = float(amount) * 1000
+    return int(value)
 
 class BudgetSync:
     def __init__(self) -> None:
@@ -32,24 +35,25 @@ class BudgetSync:
     def run(self):
         self.parser.parse_args()
 
+        self.sync_splitwise()
         response = self.api.get_transactions(
             budget_id=CONFIG.budget_id,
             since_date=get_date(weeks=4)
         )
 
         filtered_transactions = self.filter_transactions(response.transactions)
-    
+
         if len(filtered_transactions) == 0:
             print("No transactions found to split. Exiting.")
             return
-    
+
         self.print_transaction_info(filtered_transactions)
-    
+
         continue_split: bool = input("Continue with transaction split? [y/N]: ").lower().strip() == 'y'
         if not continue_split:
             print("Exiting.")
             return
-    
+
         self.split_transactions(filtered_transactions)
     
     def filter_transactions(self, transactions: list[TransactionDetail]) -> list[TransactionDetail]:
@@ -79,6 +83,19 @@ class BudgetSync:
 
         print(f"Processed {len(filtered_transactions)} transactions")
         print(f"Add £{currency(transaction_total):.2f} to splitwise")
+
+    def sync_splitwise(self):
+        ynab_splitwise_account = self.api.get_account(CONFIG.budget_id, account_id=CONFIG.ynab_sw_account_id)
+        splitwise_group = self.splitwise_api.getGroup(id=0)
+        
+        if splitwise_group is None:
+            print("unable to access splitwise group expenses. Cancelling sync")
+            return
+        elif ynab_splitwise_account.balance != milliunits(splitwise_group.original_debts[0].amount):
+            print("sync up accounts here please")
+
+        print("YNAB and Splitwise are in sync")
+
 
     def add_to_splitwise(self):
         # friend = [
