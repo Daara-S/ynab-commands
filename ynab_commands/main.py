@@ -35,7 +35,7 @@ class BudgetSync:
 
         response = self.api.get_transactions(
             budget_id=CONFIG.budget_id,
-            since_date=get_date(weeks=1)
+            since_date=get_date(weeks=4)
         )
 
         filtered_transactions = self.filter_transactions(response.transactions)
