@@ -18,12 +18,12 @@ splitwise = "^3.0.0"
 pytest = "^7.2.0"
 responses = "^0.22.0"
 black = "^23.1.0"
-
-[tool.pyright]
-include = ["ynab_commands"]
-venv = ".venv"
+mypy = "^1.8.0"
+types-requests = "^2.31.0.20240125"
+pytest-fzf = "^0.1.0"
 
 [tool.ruff]
+select = ["E", "F", "W", "Q", "I"]
 line-length = 110
 
 [build-system]
