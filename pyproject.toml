@@ -21,10 +21,11 @@ black = "^23.1.0"
 mypy = "^1.8.0"
 types-requests = "^2.31.0.20240125"
 pytest-fzf = "^0.1.0"
+ruff = "^0.3.3"
 
 [tool.ruff]
 select = ["E", "F", "W", "Q", "I"]
-line-length = 110
+line-length = 88
 
 [build-system]
 requires = ["poetry-core"]
