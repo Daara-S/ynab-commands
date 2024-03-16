@@ -5,7 +5,6 @@ from typing import Counter
 from config import ProdConfig
 from requests import Session
 
-from scripts.splitwise_connection import Splitwise
 from ynab_commands.models import TransactionDetail
 from ynab_commands.ynab_api import YNABApi
 
@@ -29,11 +28,6 @@ def milliunits(amount: float | str) -> int:
 class BudgetSync:
     def __init__(self) -> None:
         self.api = YNABApi(token=CONFIG.bearer_id, session=Session())
-        self.splitwise_api = Splitwise(
-            CONFIG.splitwise_consumer_key.get_secret_value(),
-            CONFIG.splitwise_consumer_secret.get_secret_value(),
-            api_key=CONFIG.splitwise_api_key.get_secret_value(),
-        )
         self.parser = argparse.ArgumentParser(
             prog="YNAB Commands", description="Split YNAB transactions"
         )
@@ -41,7 +35,6 @@ class BudgetSync:
     def run(self):
         self.parser.parse_args()
 
-        self.sync_splitwise()
         response = self.api.get_transactions(
             budget_id=CONFIG.budget_id, since_date=get_date(weeks=4)
         )
@@ -97,30 +90,6 @@ class BudgetSync:
                 transaction_id=transaction.id,
                 updated_transaction=updated_transaction,
             )
-            self.add_to_splitwise()
 
         print(f"Processed {len(filtered_transactions)} transactions")
         print(f"Add £{currency(transaction_total):.2f} to splitwise")
-
-    def sync_splitwise(self):
-        ynab_splitwise_account = self.api.get_account(
-            CONFIG.budget_id, account_id=CONFIG.ynab_sw_account_id
-        )
-        splitwise_group = self.splitwise_api.getGroup(id=0)
-
-        if splitwise_group is None:
-            print("unable to access splitwise group expenses. Cancelling sync")
-            return
-        elif ynab_splitwise_account.balance != milliunits(
-            splitwise_group.original_debts[0].amount
-        ):
-            print("sync up accounts here please")
-
-        print("YNAB and Splitwise are in sync")
-
-    def add_to_splitwise(self):
-        # friend = [
-        #     friend for friend in self.splitwise_api.getFriends()
-        #     if friend.first_name == "Jasperi"
-        # ]
-        pass
