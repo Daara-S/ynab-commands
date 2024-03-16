@@ -132,7 +132,7 @@ class TransactionDetail(BaseTransaction):
             flag_color=None,
             category_id=None,
             cleared="cleared",
-            subtransactions=[personal_subtransaction, splitwise_subtransaction]
+            subtransactions=[personal_subtransaction, splitwise_subtransaction],
         )
 
 

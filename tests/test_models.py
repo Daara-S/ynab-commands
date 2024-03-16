@@ -24,9 +24,18 @@ def test_budget_summary_response():
 
     assert budget_summary.budgets[0].id == sample_data["data"]["budgets"][0]["id"]
     assert budget_summary.budgets[0].name == sample_data["data"]["budgets"][0]["name"]
-    assert budget_summary.budgets[0].last_modified_on == sample_data["data"]["budgets"][0]["last_modified_on"]
-    assert budget_summary.budgets[0].first_month == sample_data["data"]["budgets"][0]["first_month"]
-    assert budget_summary.budgets[0].last_month == sample_data["data"]["budgets"][0]["last_month"]
+    assert (
+        budget_summary.budgets[0].last_modified_on
+        == sample_data["data"]["budgets"][0]["last_modified_on"]
+    )
+    assert (
+        budget_summary.budgets[0].first_month
+        == sample_data["data"]["budgets"][0]["first_month"]
+    )
+    assert (
+        budget_summary.budgets[0].last_month
+        == sample_data["data"]["budgets"][0]["last_month"]
+    )
     assert budget_summary.budgets[0].date_format == DateFormat(
         **sample_data["data"]["budgets"][0]["date_format"]
     )
@@ -37,7 +46,8 @@ def test_budget_summary_response():
         **sample_data["data"]["budgets"][0]["accounts"][0]
     )
     assert budget_summary.default_budget == BudgetSummary(
-        **sample_data["data"]["default_budget"])
+        **sample_data["data"]["default_budget"]
+    )
 
 
 def test_account():
@@ -65,7 +75,8 @@ def test_split_into_subtransaction():
     splitwise_id = "663b5011-5381-429e-8a33-c1b037258c12"
     updated_transaction = transaction.split(splitwise_id=splitwise_id)
     assert updated_transaction.subtransactions[0].amount == pytest.approx(
-        transaction.amount / 2)
+        transaction.amount / 2
+    )
     assert updated_transaction.subtransactions[0].category_id == transaction.category_id
     assert updated_transaction.subtransactions[1].category_id == splitwise_id
 
@@ -75,12 +86,25 @@ class TestTransactionsResponse:
         sample_data = dict(EXAMPLE_TRANSACTION_LIST)
         transaction_response = TransactionsResponse(**sample_data["data"])
 
-        assert transaction_response.transactions[0].id == sample_data["data"]["transactions"][0]["id"]
-        assert transaction_response.transactions[0].date == sample_data["data"]["transactions"][0]["date"]
-        assert transaction_response.transactions[0].amount == sample_data["data"]["transactions"][0]["amount"]
-        assert transaction_response.transactions[0].memo == sample_data["data"]["transactions"][0]["memo"]
         assert (
-            transaction_response.transactions[0].cleared == sample_data["data"]["transactions"][0]["cleared"]
+            transaction_response.transactions[0].id
+            == sample_data["data"]["transactions"][0]["id"]
+        )
+        assert (
+            transaction_response.transactions[0].date
+            == sample_data["data"]["transactions"][0]["date"]
+        )
+        assert (
+            transaction_response.transactions[0].amount
+            == sample_data["data"]["transactions"][0]["amount"]
+        )
+        assert (
+            transaction_response.transactions[0].memo
+            == sample_data["data"]["transactions"][0]["memo"]
+        )
+        assert (
+            transaction_response.transactions[0].cleared
+            == sample_data["data"]["transactions"][0]["cleared"]
         )
         assert (
             transaction_response.transactions[0].approved
@@ -119,7 +143,8 @@ class TestTransactionsResponse:
             == sample_data["data"]["transactions"][0]["import_id"]
         )
         assert (
-            transaction_response.transactions[0].deleted == sample_data["data"]["transactions"][0]["deleted"]
+            transaction_response.transactions[0].deleted
+            == sample_data["data"]["transactions"][0]["deleted"]
         )
         assert (
             transaction_response.transactions[0].account_name
@@ -133,22 +158,29 @@ class TestTransactionsResponse:
             transaction_response.transactions[0].category_name
             == sample_data["data"]["transactions"][0]["category_name"]
         )
-        assert transaction_response.transactions[0].subtransactions[0] == SubTransaction(
+        assert transaction_response.transactions[0].subtransactions[
+            0
+        ] == SubTransaction(
             **sample_data["data"]["transactions"][0]["subtransactions"][0]
         )
-        assert transaction_response.server_knowledge == sample_data["data"]["server_knowledge"]
+        assert (
+            transaction_response.server_knowledge
+            == sample_data["data"]["server_knowledge"]
+        )
 
     def test_total_transactions(self):
         sample_data = dict(EXAMPLE_TRANSACTION_LIST)
         sample_data["data"]["transactions"].append(
-            sample_data["data"]["transactions"][0])
+            sample_data["data"]["transactions"][0]
+        )
         transaction_response = TransactionsResponse(**sample_data["data"])
         assert transaction_response.total_transactions == 2
 
     def test_total_accounts(self):
         sample_data = dict(EXAMPLE_TRANSACTION_LIST)
         sample_data["data"]["transactions"].append(
-            EXAMPLE_TRANSACTION["data"]["transaction"])
+            EXAMPLE_TRANSACTION["data"]["transaction"]
+        )
         sample_data["data"]["transactions"][0]["account_id"] = "account1"
         sample_data["data"]["transactions"][1]["account_id"] = "account2"
         transaction_response = TransactionsResponse(**sample_data["data"])

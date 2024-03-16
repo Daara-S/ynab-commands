@@ -8,9 +8,9 @@ from pydantic.types import SecretStr
 from ynab_commands.models import (
     Account,
     BudgetSummaryResponse,
-    TransactionsResponse,
     SaveTransactionWrapper,
     TransactionDetail,
+    TransactionsResponse,
 )
 
 
@@ -27,7 +27,9 @@ def get(
     params: dict[str, Any],
 ):
     response = session.get(
-        url=url, params=params, headers={"Authorization": f"Bearer {token.get_secret_value()}"}
+        url=url,
+        params=params,
+        headers={"Authorization": f"Bearer {token.get_secret_value()}"},
     )
 
     if response.status_code != 200:
@@ -55,8 +57,7 @@ def put(
 
 
 def parse_transaction(updated_transaction):
-    payload = {}
-    payload["transaction"] = updated_transaction.dict()
+    payload = {"transaction": updated_transaction.dict()}
     return json.dumps(payload)
 
 
@@ -99,13 +100,16 @@ class YNABApi:
             “uncategorized” and “unapproved” are currently supported.
         param last_knowledge_of_server:
             The starting server knowledge.
-            If provided, only entities that have changed since last_knowledge_of_server will be included.
+            If provided, only entities that have changed since last_knowledge_of_server
+            will be included.
         return: TransactionsResponse
         """
         url = f"{self._base_url}/budgets/{budget_id}/transactions"
         payload = parse_payload(**kwargs)
 
-        response_json = get(session=self._session, url=url, token=self._token, params=payload)
+        response_json = get(
+            session=self._session, url=url, token=self._token, params=payload
+        )
 
         return TransactionsResponse(**response_json["data"])
 

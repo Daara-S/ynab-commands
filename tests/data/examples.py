@@ -7,9 +7,7 @@ EXAMPLE_BUDGET_LIST = {
                 "last_modified_on": "2022-12-03T18:23:02.916Z",
                 "first_month": "string",
                 "last_month": "string",
-                "date_format": {
-                    "format": "string"
-                },
+                "date_format": {"format": "string"},
                 "currency_format": {
                     "iso_code": "string",
                     "example_format": "string",
@@ -18,7 +16,7 @@ EXAMPLE_BUDGET_LIST = {
                     "symbol_first": True,
                     "group_separator": "string",
                     "currency_symbol": "string",
-                    "display_symbol": True
+                    "display_symbol": True,
                 },
                 "accounts": [
                     {
@@ -34,9 +32,9 @@ EXAMPLE_BUDGET_LIST = {
                         "transfer_payee_id": "string",
                         "direct_import_linked": True,
                         "direct_import_in_error": True,
-                        "deleted": True
+                        "deleted": True,
                     }
-                ]
+                ],
             }
         ],
         "default_budget": {
@@ -45,9 +43,7 @@ EXAMPLE_BUDGET_LIST = {
             "last_modified_on": "2022-12-03T18:23:02.916Z",
             "first_month": "string",
             "last_month": "string",
-            "date_format": {
-                "format": "string"
-            },
+            "date_format": {"format": "string"},
             "currency_format": {
                 "iso_code": "string",
                 "example_format": "string",
@@ -56,7 +52,7 @@ EXAMPLE_BUDGET_LIST = {
                 "symbol_first": True,
                 "group_separator": "string",
                 "currency_symbol": "string",
-                "display_symbol": True
+                "display_symbol": True,
             },
             "accounts": [
                 {
@@ -72,10 +68,10 @@ EXAMPLE_BUDGET_LIST = {
                     "transfer_payee_id": "string",
                     "direct_import_linked": True,
                     "direct_import_in_error": True,
-                    "deleted": True
+                    "deleted": True,
                 }
-            ]
-        }
+            ],
+        },
     }
 }
 
@@ -92,7 +88,7 @@ EXAMPLE_ACCOUNT = {
     "transfer_payee_id": "string",
     "direct_import_linked": True,
     "direct_import_in_error": True,
-    "deleted": True
+    "deleted": True,
 }
 
 EXAMPLE_TRANSACTION_LIST = {
@@ -129,12 +125,12 @@ EXAMPLE_TRANSACTION_LIST = {
                         "category_name": "string",
                         "transfer_account_id": "string",
                         "transfer_transaction_id": "string",
-                        "deleted": True
+                        "deleted": True,
                     }
-                ]
+                ],
             }
         ],
-        "server_knowledge": 0
+        "server_knowledge": 0,
     }
 }
 
@@ -171,9 +167,9 @@ EXAMPLE_TRANSACTION = {
                     "category_name": "string",
                     "transfer_account_id": "string",
                     "transfer_transaction_id": "string",
-                    "deleted": True
+                    "deleted": True,
                 }
-            ]
+            ],
         }
     }
 }
@@ -197,8 +193,8 @@ EXAMPLE_UPDATED_TRANSACTION = {
                 "payee_id": "string",
                 "payee_name": "string",
                 "category_id": "string",
-                "memo": "string"
+                "memo": "string",
             }
-        ]
+        ],
     }
 }

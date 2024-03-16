@@ -5,13 +5,14 @@ from splitwise.user import ExpenseUser
 
 from ynab_commands.config import configs
 
-CONFIG = configs[os.getenv('ENV', 'Prod')]
+CONFIG = configs[os.getenv("ENV", "Prod")]
+
 
 def main():
     sObj = Splitwise(
         CONFIG.splitwise_consumer_key.get_secret_value(),
         CONFIG.splitwise_consumer_secret.get_secret_value(),
-        api_key=CONFIG.splitwise_api_key.get_secret_value()
+        api_key=CONFIG.splitwise_api_key.get_secret_value(),
     )
     friends = sObj.getFriends()
     friend = [friend for friend in friends if friend.first_name == "Jasperi"][0]
@@ -35,6 +36,7 @@ def main():
     expense.addUser(user2)
     nExpense, errors = sObj.createExpense(expense)
     print(nExpense.getId())
+
 
 if __name__ == "__main__":
     main()

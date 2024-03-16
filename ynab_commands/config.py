@@ -7,20 +7,8 @@ ENV_DIR = Path(__file__).parents[1]
 
 
 class Config(BaseSettings):
-    bearer_id: SecretStr
-    budget_id: str
-    ynab_sw_account_id: str
-    splitwise_id: str
-    splitwise_consumer_key: SecretStr
-    splitwise_consumer_secret: SecretStr
-    splitwise_api_key: SecretStr
+    bearer_id: SecretStr = SecretStr("123")
+    budget_id: str = "123"
 
 
-
-TestConfig = Config(_env_file=ENV_DIR / 'test.env')
-ProdConfig = Config(_env_file=ENV_DIR / 'prod.env')
-
-configs = {
-    "Test": TestConfig,
-    "Prod": ProdConfig
-}
+ProdConfig = Config(_env_file=ENV_DIR / "prod.env")
