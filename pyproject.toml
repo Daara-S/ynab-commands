@@ -40,3 +40,10 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 ynab-split="ynab_commands.main:run"
+
+[tool.mypy]
+exclude = [
+    "scripts/*",
+    "tests/*",
+]
+strict=false
