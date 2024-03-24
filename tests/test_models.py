@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import pytest
 
 from tests.data.examples import (
@@ -79,6 +81,27 @@ def test_split_into_subtransaction():
     )
     assert updated_transaction.subtransactions[0].category_id == transaction.category_id
     assert updated_transaction.subtransactions[1].category_id == splitwise_id
+
+
+@pytest.fixture
+def unsplit_transaction():
+    sample_data = deepcopy(EXAMPLE_TRANSACTION)
+    sample_data["data"]["transaction"]["subtransactions"] = []
+    sample_data["data"]["transaction"]["flag_color"] = "purple"
+    return TransactionDetail(**sample_data["data"]["transaction"])
+
+
+@pytest.fixture
+def transaction_dict():
+    return dict(EXAMPLE_TRANSACTION).copy()
+
+
+def test_filter_transactions(unsplit_transaction, transaction_dict):
+    transaction = TransactionDetail(**transaction_dict["data"]["transaction"])
+    all_transactions = [transaction, unsplit_transaction]
+
+    filtered_transactions = [t for t in all_transactions if t.should_split]
+    assert len(filtered_transactions) == 1
 
 
 class TestTransactionsResponse:

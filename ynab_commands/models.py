@@ -104,6 +104,10 @@ class TransactionDetail(BaseTransaction):
     category_name: str | None
     subtransactions: list[SubTransaction]
 
+    @property
+    def should_split(self) -> bool:
+        return self.flag_color == "purple" and len(self.subtransactions) == 0
+
     def split(self, splitwise_id: str) -> SaveTransactionWrapper:
         split_amount = self.amount // 2
         personal_subtransaction = SaveSubTransaction(

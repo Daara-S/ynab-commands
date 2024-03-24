@@ -1,9 +1,5 @@
-from pathlib import Path
-
 from pydantic.env_settings import BaseSettings
 from pydantic.types import SecretStr
-
-ENV_DIR = Path(__file__).parents[1]
 
 
 class Config(BaseSettings):

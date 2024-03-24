@@ -2,12 +2,15 @@ import argparse
 import sys
 from collections import Counter
 from datetime import datetime, timedelta
+from pathlib import Path
 
 from requests import Session
 
 from ynab_commands.config import Config
 from ynab_commands.models import TransactionDetail
 from ynab_commands.ynab_api import YNABApi
+
+ENV_DIR = Path(__file__).parents[1]
 
 CONFIG = Config(_env_file=ENV_DIR / "prod.env")  # type: ignore[call-arg]  # noqa:F821
 
@@ -17,24 +20,15 @@ def get_date(weeks: int) -> str:
     return str(backdate.date())
 
 
-def to_gbp(amount: int) -> float:
+def milliunits_to_gbp(amount: int) -> float:
+    """Convert milliunits to pounds."""
     return abs(amount / 1000.0)
 
 
-def milliunits(amount: float | str) -> int:
+def gbp_to_milliunits(amount: float | str) -> int:
+    """Convert pounds to milliunits."""
     value = float(amount) * 1000
     return int(value)
-
-
-def filter_transactions(
-    transactions: list[TransactionDetail],
-) -> list[TransactionDetail]:
-    """todo move this to a property of TransactionDetail."""
-    return [
-        transaction
-        for transaction in transactions
-        if transaction.flag_color == "purple" and transaction.subtransactions == []
-    ]
 
 
 def print_transaction_info(filtered_transactions: list[TransactionDetail]) -> None:
@@ -57,22 +51,22 @@ def split_transactions(filtered_transactions: list[TransactionDetail]) -> None:
         )
 
     print(f"Processed {len(filtered_transactions)} transactions")
-    print(f"Add £{to_gbp(transaction_total):.2f} to splitwise")
+    print(f"Add £{milliunits_to_gbp(transaction_total):.2f} to splitwise")
 
 
 if __name__ == "__main__":
     api = YNABApi(token=CONFIG.bearer_id, session=Session())
+
     parser = argparse.ArgumentParser(
         prog="YNAB Commands", description="Split YNAB transactions"
     )
-
     parser.parse_args()
 
     response = api.get_transactions(
         budget_id=CONFIG.budget_id, since_date=get_date(weeks=4)
     )
 
-    filtered_transactions = filter_transactions(response.transactions)
+    filtered_transactions = [t for t in response.transactions if t.should_split]
 
     if len(filtered_transactions) == 0:
         print("No transactions found to split. Exiting.")
