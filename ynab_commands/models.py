@@ -108,37 +108,6 @@ class TransactionDetail(BaseTransaction):
     def should_split(self) -> bool:
         return self.flag_color == "purple" and len(self.subtransactions) == 0
 
-    def split(self, splitwise_id: str) -> SaveTransactionWrapper:
-        split_amount = self.amount // 2
-        personal_subtransaction = SaveSubTransaction(
-            amount=split_amount,
-            category_id=self.category_id,
-            payee_id=self.payee_id,
-            payee_name=self.payee_name,
-            memo=self.memo,
-        )
-        splitwise_subtransaction = SaveSubTransaction(
-            amount=split_amount,
-            category_id=splitwise_id,
-            payee_id=self.payee_id,
-            payee_name=self.payee_name,
-            memo="Auto-split",
-        )
-        return SaveTransactionWrapper(
-            payee_id=None,
-            payee_name=None,
-            memo=None,
-            import_id=None,
-            amount=self.amount,
-            account_id=self.account_id,
-            date=self.date,
-            approved=True,
-            flag_color=None,
-            category_id=None,
-            cleared="cleared",
-            subtransactions=[personal_subtransaction, splitwise_subtransaction],
-        )
-
 
 class TransactionsResponse(BaseModel):
     transactions: list[TransactionDetail]

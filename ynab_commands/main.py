@@ -7,7 +7,11 @@ from pathlib import Path
 from requests import Session
 
 from ynab_commands.config import Config
-from ynab_commands.models import TransactionDetail
+from ynab_commands.models import (
+    SaveSubTransaction,
+    SaveTransactionWrapper,
+    TransactionDetail,
+)
 from ynab_commands.ynab_api import YNABApi
 
 ENV_DIR = Path(__file__).parents[1]
@@ -39,11 +43,46 @@ def print_transaction_info(filtered_transactions: list[TransactionDetail]) -> No
         print(f"{account}: {count} transactions")
 
 
-def split_transactions(filtered_transactions: list[TransactionDetail]) -> None:
+def split_transaction(transaction: TransactionDetail) -> SaveTransactionWrapper:
+    split_amount = transaction.amount // 2
+
+    personal_subtransaction = SaveSubTransaction(
+        amount=split_amount,
+        category_id=transaction.category_id,
+        payee_id=transaction.payee_id,
+        payee_name=transaction.payee_name,
+        memo=transaction.memo,
+    )
+    splitwise_subtransaction = SaveSubTransaction(
+        amount=split_amount,
+        category_id=CONFIG.splitwise_id,
+        payee_id=transaction.payee_id,
+        payee_name=transaction.payee_name,
+        memo="Auto-split",
+    )
+    return SaveTransactionWrapper(
+        payee_id=None,
+        payee_name=None,
+        memo=None,
+        import_id=None,
+        amount=transaction.amount,
+        account_id=transaction.account_id,
+        date=transaction.date,
+        approved=True,
+        flag_color=None,
+        category_id=None,
+        cleared="cleared",
+        subtransactions=[personal_subtransaction, splitwise_subtransaction],
+    )
+
+
+def split_and_update_transaction(
+    filtered_transactions: list[TransactionDetail],
+) -> None:
     transaction_total = sum(transaction.amount for transaction in filtered_transactions)
 
     for transaction in filtered_transactions:
-        updated_transaction = transaction.split(splitwise_id=CONFIG.splitwise_id)
+        updated_transaction = split_transaction(transaction)
         api.update_transaction(
             budget_id=CONFIG.budget_id,
             transaction_id=transaction.id,
@@ -81,4 +120,4 @@ if __name__ == "__main__":
         print("Exiting.")
         sys.exit()
 
-    split_transactions(filtered_transactions)
+    split_and_update_transaction(filtered_transactions)
