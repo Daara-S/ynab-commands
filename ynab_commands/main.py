@@ -16,7 +16,7 @@ from ynab_commands.ynab_api import YNABApi
 
 ENV_DIR = Path(__file__).parents[1]
 
-CONFIG = Config(_env_file=ENV_DIR / "prod.env")  # type: ignore[call-arg]  # noqa:F821
+CONFIG = Config(_env_file=ENV_DIR / "prod.env")  # type: ignore[call-arg]
 
 
 def get_date(weeks: int) -> str:

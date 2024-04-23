@@ -15,7 +15,7 @@ def main():
         api_key=CONFIG.splitwise_api_key.get_secret_value(),
     )
     friends = sObj.getFriends()
-    friend = [friend for friend in friends if friend.first_name == "Jasperi"][0]
+    friend = next(friend for friend in friends if friend.first_name == "Jasperi")
     print(friend.id)
 
     myself = sObj.getCurrentUser()
