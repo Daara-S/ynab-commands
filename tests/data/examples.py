@@ -16,7 +16,7 @@ EXAMPLE_BUDGET_LIST = {
                     "symbol_first": True,
                     "group_separator": "string",
                     "currency_symbol": "string",
-                    "display_symbol": True,
+                    "display_symbol": "True",
                 },
                 "accounts": [
                     {
@@ -52,7 +52,7 @@ EXAMPLE_BUDGET_LIST = {
                 "symbol_first": True,
                 "group_separator": "string",
                 "currency_symbol": "string",
-                "display_symbol": True,
+                "display_symbol": "True",
             },
             "accounts": [
                 {

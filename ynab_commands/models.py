@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from enum import IntEnum
 from typing import Literal
 
@@ -113,11 +115,23 @@ class TransactionsResponse(BaseModel):
     transactions: list[TransactionDetail]
     server_knowledge: int
 
-    @property
-    def total_transactions(self) -> int:
+    def __iter__(self):
+        return iter(self.transactions)
+
+    def __len__(self):
         return len(self.transactions)
 
     @property
     def total_accounts(self) -> int:
         accounts = set([transaction.account_id for transaction in self.transactions])
         return len(accounts)
+
+    @property
+    def transaction_total(self) -> int:
+        return sum(transaction.amount for transaction in self.transactions)
+
+    def get_transactions_to_split(self) -> TransactionsResponse:
+        return TransactionsResponse(
+            transactions=[t for t in self.transactions if t.should_split],
+            server_knowledge=self.server_knowledge,
+        )

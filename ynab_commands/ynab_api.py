@@ -31,6 +31,7 @@ def get(
         params=params,
         headers={"Authorization": f"Bearer {token.get_secret_value()}"},
     )
+    response.raise_for_status()
 
     if response.status_code != 200:
         raise requests.RequestException
@@ -50,6 +51,7 @@ def put(
         "Content-Type": "application/json",
     }
     response = session.put(url=url, headers=headers, data=data)
+    response.raise_for_status()
     if response.status_code != 200:
         raise requests.RequestException
 

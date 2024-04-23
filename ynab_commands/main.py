@@ -11,12 +11,11 @@ from ynab_commands.models import (
     SaveSubTransaction,
     SaveTransactionWrapper,
     TransactionDetail,
+    TransactionsResponse,
 )
 from ynab_commands.ynab_api import YNABApi
 
-ENV_DIR = Path(__file__).parents[1]
-
-CONFIG = Config(_env_file=ENV_DIR / "prod.env")  # type: ignore[call-arg]
+CONFIG = Config(_env_file=Path(__file__).parents[1] / "prod.env")  # type: ignore[call-arg]
 
 
 def get_date(weeks: int) -> str:
@@ -35,8 +34,8 @@ def gbp_to_milliunits(amount: float | str) -> int:
     return int(value)
 
 
-def print_transaction_info(filtered_transactions: list[TransactionDetail]) -> None:
-    account_names = [transaction.account_name for transaction in filtered_transactions]
+def print_transaction_info(filtered_response: TransactionsResponse) -> None:
+    account_names = [transaction.account_name for transaction in filtered_response]
     account_counts = Counter(account_names)
 
     for account, count in account_counts.items():
@@ -77,11 +76,9 @@ def split_transaction(transaction: TransactionDetail) -> SaveTransactionWrapper:
 
 
 def split_and_update_transaction(
-    filtered_transactions: list[TransactionDetail],
+    filtered_response: TransactionsResponse,
 ) -> None:
-    transaction_total = sum(transaction.amount for transaction in filtered_transactions)
-
-    for transaction in filtered_transactions:
+    for transaction in filtered_response:
         updated_transaction = split_transaction(transaction)
         api.update_transaction(
             budget_id=CONFIG.budget_id,
@@ -89,29 +86,30 @@ def split_and_update_transaction(
             updated_transaction=updated_transaction,
         )
 
-    print(f"Processed {len(filtered_transactions)} transactions")
-    print(f"Add £{milliunits_to_gbp(transaction_total):.2f} to splitwise")
+    print(f"Processed {len(filtered_response)} transactions")
+    print(
+        f"Add £{milliunits_to_gbp(filtered_response.transaction_total):.2f} to splitwise"  # noqa: E501
+    )
 
 
 if __name__ == "__main__":
-    api = YNABApi(token=CONFIG.bearer_id, session=Session())
-
     parser = argparse.ArgumentParser(
         prog="YNAB Commands", description="Split YNAB transactions"
     )
     parser.parse_args()
 
+    api = YNABApi(token=CONFIG.bearer_id, session=Session())
     response = api.get_transactions(
         budget_id=CONFIG.budget_id, since_date=get_date(weeks=4)
     )
 
-    filtered_transactions = [t for t in response.transactions if t.should_split]
+    filtered_response = response.get_transactions_to_split()
 
-    if len(filtered_transactions) == 0:
+    if len(filtered_response.transactions) == 0:
         print("No transactions found to split. Exiting.")
         sys.exit()
 
-    print_transaction_info(filtered_transactions)
+    print_transaction_info(filtered_response)
 
     continue_split: bool = (
         input("Continue with transaction split? [y/N]: ").lower().strip() == "y"
@@ -120,4 +118,4 @@ if __name__ == "__main__":
         print("Exiting.")
         sys.exit()
 
-    split_and_update_transaction(filtered_transactions)
+    split_and_update_transaction(filtered_response)
