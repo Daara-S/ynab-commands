@@ -1,8 +1,7 @@
 # Todo
-- add splitwise API to automatically send that total to be split equally
-- add sync option to sync splitwise balance with Splitwise tracked account
-  - my split transactions will send money to the splitwise tracked account instead of to the budget category
-
+[] Add sync with splitwise
+[] Change Put to Patch to make it faster
+[] containerize and put online with a cron job to run it
 
 ### Spltwise sync
 The sync will pull the latest transactions from splitwise based on the most recent transaction in the YNAB tracked account
