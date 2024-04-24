@@ -4,7 +4,6 @@ version = "0.2.0"
 description = ""
 authors = ["Daara Shaw"]
 readme = "README.md"
-packages = [{include = "src/ynab_commands"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from enum import IntEnum
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel
 
@@ -20,7 +20,7 @@ class CurrencyFormat(BaseModel):
     symbol_first: bool
     group_separator: str
     currency_symbol: str
-    display_symbol: str
+    display_symbol: bool
 
 
 class AccountType(IntEnum):
@@ -40,6 +40,11 @@ class Account(BaseModel):
     transfer_payee_id: str
     direct_import_linked: bool
     direct_import_in_error: bool
+    last_reconciled_at: str | None = None
+    debt_original_balance: int | None = None
+    debt_interest_rates: dict[str, Any] | None = None
+    debt_minimum_payments: dict[str, Any] | None = None
+    debt_escrow_amounts: dict[str, Any] | None = None
     deleted: bool
 
 
@@ -96,11 +101,15 @@ class TransactionDetail(BaseTransaction):
     cleared: str  # todo make enum
     approved: bool
     flag_color: FLAG_COLOR | None
+    flag_name: str | None
     account_id: str
     transfer_account_id: str | None
     transfer_transaction_id: str | None
     matched_transaction_id: str | None
     import_id: str | None
+    import_payee_name: str | None
+    import_payee_name_original: str | None
+    debt_transaction_type: str | None
     deleted: bool
     account_name: str
     category_name: str | None
