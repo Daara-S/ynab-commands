@@ -13,6 +13,7 @@ from ynab_commands.models import (
     TransactionDetail,
     TransactionsResponse,
 )
+from ynab_commands.splitwise_api import SplitwiseAPI
 from ynab_commands.ynab_api import YNABApi
 
 CONFIG = Config(_env_file=Path(__file__).parents[1] / "prod.env")  # type: ignore[call-arg]
@@ -76,21 +77,23 @@ def split_transaction(transaction: TransactionDetail) -> SaveTransactionWrapper:
 
 
 def split_and_update_transaction(
-    api: YNABApi,
+    ynab_api: YNABApi,
+    splitwise_api: SplitwiseAPI,
     filtered_response: TransactionsResponse,
 ) -> None:
-    for transaction in filtered_response:
-        updated_transaction = split_transaction(transaction)
-        api.update_transaction(
+    total_in_pounds = milliunits_to_gbp(filtered_response.transaction_total)
+    updated_transactions = [split_transaction(t) for t in filtered_response]
+
+    for transaction in updated_transactions:
+        ynab_api.update_transaction(
             budget_id=CONFIG.budget_id,
             transaction_id=transaction.id,
-            updated_transaction=updated_transaction,
+            updated_transaction=transaction,
         )
 
     print(f"Processed {len(filtered_response)} transactions")
-    print(
-        f"Add £{milliunits_to_gbp(filtered_response.transaction_total):.2f} to splitwise"  # noqa: E501
-    )
+    print(f"Add £{total_in_pounds:.2f} to splitwise")
+    splitwise_api.update_splitwise(total=total_in_pounds)
 
 
 def run():
@@ -99,8 +102,13 @@ def run():
     )
     parser.parse_args()
 
-    api = YNABApi(token=CONFIG.bearer_id, session=Session())
-    response = api.get_transactions(
+    ynab_api = YNABApi(token=CONFIG.bearer_id, session=Session())
+    splitwise_api = SplitwiseAPI(
+        consumer_key=CONFIG.splitwise_consumer_key,
+        consumer_secret=CONFIG.splitwise_consumer_secret,
+        api_key=CONFIG.splitwise_api_key,
+    )
+    response = ynab_api.get_transactions(
         budget_id=CONFIG.budget_id, since_date=get_date(weeks=4)
     )
 
@@ -119,7 +127,11 @@ def run():
         print("Exiting.")
         sys.exit()
 
-    split_and_update_transaction(api, filtered_response)
+    split_and_update_transaction(
+        ynab_api=ynab_api,
+        splitwise_api=splitwise_api,
+        filtered_response=filtered_response,
+    )
 
 
 if __name__ == "__main__":
