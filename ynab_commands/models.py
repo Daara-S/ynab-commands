@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from enum import IntEnum
-from typing import Any, Literal
+from typing import Any, Iterator, Literal
 
 from pydantic import BaseModel
 
@@ -124,10 +124,10 @@ class TransactionsResponse(BaseModel):
     transactions: list[TransactionDetail]
     server_knowledge: int
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[TransactionDetail]:  # type:ignore[override]
         return iter(self.transactions)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.transactions)
 
     @property

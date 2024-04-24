@@ -14,7 +14,7 @@ from ynab_commands.models import (
 )
 
 
-def parse_payload(**kwargs):
+def parse_payload(**kwargs: Any) -> dict[str, Any]:
     data = {}
     data.update(kwargs)
     return data
@@ -25,7 +25,7 @@ def get(
     url: str,
     token: SecretStr,
     params: dict[str, Any],
-):
+) -> Any:
     response = session.get(
         url=url,
         params=params,
@@ -44,7 +44,7 @@ def put(
     session: requests.Session,
     url: str,
     token: SecretStr,
-):
+) -> Any:
     headers = {
         "accept": "application/json",
         "Authorization": f"Bearer {token.get_secret_value()}",
@@ -58,7 +58,7 @@ def put(
     return response.json()
 
 
-def parse_transaction(updated_transaction):
+def parse_transaction(updated_transaction: SaveTransactionWrapper) -> str:
     payload = {"transaction": updated_transaction.dict()}
     return json.dumps(payload)
 
@@ -72,21 +72,21 @@ class YNABApi:
         self._token = token
         self._session = session or requests_cache.CachedSession("ynab_cache")
 
-    def get_budgets(self, **kwargs):
+    def get_budgets(self, **kwargs: Any) -> BudgetSummaryResponse:
         url = f"{self._base_url}/budgets"
         payload = parse_payload(**kwargs)
         response_json = get(self._session, url, self._token, params=payload)
 
         return BudgetSummaryResponse(**response_json["data"])
 
-    def get_account(self, budget_id: str, account_id: str, **kwargs):
+    def get_account(self, budget_id: str, account_id: str, **kwargs: Any) -> Account:
         url = f"{self._base_url}/budgets/{budget_id}/accounts/{account_id}"
         payload = parse_payload(**kwargs)
         response_json = get(self._session, url, self._token, params=payload)
 
         return Account(**response_json["data"]["account"])
 
-    def get_transactions(self, budget_id: str, **kwargs):
+    def get_transactions(self, budget_id: str, **kwargs: Any) -> TransactionsResponse:
         """Returns budget transactions
 
         param budget_id:
@@ -120,7 +120,7 @@ class YNABApi:
         budget_id: str,
         transaction_id: str,
         updated_transaction: SaveTransactionWrapper,
-    ):
+    ) -> TransactionDetail:
         url = f"{self._base_url}/budgets/{budget_id}/transactions/{transaction_id}"
         data = parse_transaction(updated_transaction)
         response_json = put(
