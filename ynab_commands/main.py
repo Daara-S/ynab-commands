@@ -76,6 +76,7 @@ def split_transaction(transaction: TransactionDetail) -> SaveTransactionWrapper:
 
 
 def split_and_update_transaction(
+    api: YNABApi,
     filtered_response: TransactionsResponse,
 ) -> None:
     for transaction in filtered_response:
@@ -92,7 +93,7 @@ def split_and_update_transaction(
     )
 
 
-if __name__ == "__main__":
+def run():
     parser = argparse.ArgumentParser(
         prog="YNAB Commands", description="Split YNAB transactions"
     )
@@ -118,4 +119,8 @@ if __name__ == "__main__":
         print("Exiting.")
         sys.exit()
 
-    split_and_update_transaction(filtered_response)
+    split_and_update_transaction(api, filtered_response)
+
+
+if __name__ == "__main__":
+    run()
