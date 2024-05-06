@@ -38,6 +38,7 @@ def print_transaction_info(filtered_response: TransactionsResponse) -> None:
     account_names = [transaction.account_name for transaction in filtered_response]
     account_counts = Counter(account_names)
 
+    print(f"£{milliunits_to_gbp(filtered_response.transaction_total)}")
     for account, count in account_counts.items():
         print(f"{account}: {count} transactions")
 
