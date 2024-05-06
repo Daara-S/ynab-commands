@@ -22,7 +22,7 @@ def run():
     parser.parse_args()
 
     ynab_api = YNABApi(token=CONFIG.bearer_id, session=Session())
-    splitwise_api = SplitwiseAPI(  # noqa: F841
+    splitwise_api = SplitwiseAPI(
         consumer_key=CONFIG.splitwise_consumer_key,
         consumer_secret=CONFIG.splitwise_consumer_secret,
         api_key=CONFIG.splitwise_api_key,
@@ -50,7 +50,7 @@ def run():
     ynab_api.split_and_update_transaction(
         filtered_response=filtered_response,
     )
-    # splitwise_api.update_splitwise(total=filtered_response.transaction_total)
+    splitwise_api.update_splitwise(total=filtered_response.transaction_total.to_float())
 
 
 if __name__ == "__main__":

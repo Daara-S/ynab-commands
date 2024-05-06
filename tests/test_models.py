@@ -3,6 +3,7 @@ from copy import deepcopy
 from ynab_commands.models import (
     Account,
     BudgetSummaryResponse,
+    ExpenseData,
     MilliUnits,
     TransactionDetail,
     TransactionsResponse,
@@ -20,6 +21,29 @@ def test_adding_milliunits_returns_milliunits():
     assert isinstance(total_as_addition, MilliUnits)
     total_as_sum = sum([MilliUnits(200), MilliUnits(300)])
     assert isinstance(total_as_sum, MilliUnits)
+
+
+def test_create_expense():
+    expense = ExpenseData(
+        **{
+            "description": "test",
+            "cost": 10,
+            "users": [
+                {
+                    "id": 1234,
+                    "paid_share": 10,
+                    "owed_share": 5,
+                },
+                {
+                    "id": 5678,
+                    "paid_share": 0,
+                    "owed_share": 5,
+                },
+            ],
+        }
+    )
+    assert expense.cost == 10
+    assert expense.users[0].id == 1234
 
 
 def test_budget_summary_response(budget_list_json):

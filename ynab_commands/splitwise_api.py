@@ -1,11 +1,17 @@
+import logging
+
 from pydantic import SecretStr
-from splitwise import Expense, Splitwise, User
-from splitwise.user import ExpenseUser
+from splitwise import Splitwise, User
+from splitwise.user import Friend
+
+from ynab_commands.models import ExpenseData
+
+log = logging.getLogger(__name__)
 
 
 class SplitwiseAPI:
     _api: Splitwise
-    _user: User
+    _current_user: User
 
     def __init__(
         self, consumer_key: SecretStr, consumer_secret: SecretStr, api_key: SecretStr
@@ -15,30 +21,50 @@ class SplitwiseAPI:
             consumer_secret=consumer_secret.get_secret_value(),
             api_key=api_key.get_secret_value(),
         )
-        self._user = self._api.getCurrentUser()
+        self._current_user = self._api.getCurrentUser()
 
-    def update_splitwise(self, total: int):
-        friend: User = next(
-            friend
-            for friend in self._api.getFriends()
-            if friend.first_name == "Jasperi"
-        )
-        expense = Expense(
-            {
-                "description": "groceries and takeout",
+    def _get_wife(self, first_name: str) -> Friend:
+        friends = self._api.getFriends()
+        return next(friend for friend in friends if friend.first_name == first_name)
+
+    def _create_expense(
+        self, description: str, total: float, friend_id: int
+    ) -> ExpenseData:
+        owed_share = total / 2
+        return ExpenseData(
+            **{
+                "description": description,
                 "cost": total,
+                "users": [
+                    {
+                        "id": self._current_user.id,
+                        "paid_share": total,
+                        "owed_share": owed_share,
+                    },
+                    {
+                        "id": friend_id,
+                        "paid_share": 0,
+                        "owed_share": owed_share,
+                    },
+                ],
             }
         )
-        self_expense_user = ExpenseUser(
-            {"id": self._user.id, "paid_share": total, "owed_share": total // 2}
-        )
-        friend_expense_user = ExpenseUser(
-            {"id": friend.id, "paid_share": 0, "owed_share": total // 2}
-        )
 
-        expense.addUser(self_expense_user)
-        expense.addUser(friend_expense_user)
+    def update_splitwise(self, total: float):
+        friend = self._get_wife(first_name="Jasperi")
+        log.debug(f"found wife: {friend.first_name}.")
+
+        expense = self._create_expense(
+            description="Groceries and takeout",
+            total=total,
+            friend_id=friend.id,
+        )
+        log.debug(f"created_expense: {expense.dict()}")
+
         expense, errors = self._api.createExpense(expense)
+        log.debug("Expense added to splitwise with errors: %s", errors)
+
         if errors is not None:
             raise errors
-        print("{total:.2f} added to splitwise")
+
+        print(f"{total:.2f} added to splitwise")

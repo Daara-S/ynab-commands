@@ -5,6 +5,7 @@ from enum import IntEnum
 from typing import Any, Iterator, List, Literal
 
 from pydantic import BaseModel
+from splitwise import Expense, User
 
 FLAG_COLOR = Literal["red", "orange", "yellow", "green", "blue", "purple"]
 
@@ -13,11 +14,26 @@ class MilliUnits(int):
     def __repr__(self):
         return f"£{abs(self / 1000)}"
 
+    def to_float(self) -> float:
+        return abs(self / 1000)
+
     def __add__(self, other) -> MilliUnits:
         return MilliUnits(super().__add__(other))
 
     def __radd__(self, other) -> MilliUnits:
         return self.__add__(other)
+
+
+class ExpenseUser(BaseModel, User):
+    id: int
+    paid_share: float
+    owed_share: float
+
+
+class ExpenseData(BaseModel, Expense):
+    description: str
+    cost: float
+    users: list[ExpenseUser]
 
 
 class DateFormat(BaseModel):
