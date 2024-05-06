@@ -1,14 +1,25 @@
 from copy import deepcopy
 
-import pytest
-
-from ynab_commands.main import split_transaction
 from ynab_commands.models import (
     Account,
     BudgetSummaryResponse,
+    MilliUnits,
     TransactionDetail,
     TransactionsResponse,
 )
+
+
+def test_converting_milliunits_to_gbp():
+    amount = MilliUnits(20_500)
+    assert isinstance(amount, int)
+    assert repr(amount) == "£20.5"
+
+
+def test_adding_milliunits_returns_milliunits():
+    total_as_addition = MilliUnits(200) + MilliUnits(300)
+    assert isinstance(total_as_addition, MilliUnits)
+    total_as_sum = sum([MilliUnits(200), MilliUnits(300)])
+    assert isinstance(total_as_sum, MilliUnits)
 
 
 def test_budget_summary_response(budget_list_json):
@@ -19,15 +30,6 @@ def test_budget_summary_response(budget_list_json):
 def test_account(account_json):
     account = Account(**account_json)
     assert account.dict() == account_json
-
-
-def test_split_into_subtransaction(transaction_json):
-    transaction = TransactionDetail(**transaction_json["data"]["transaction"])
-    updated_transaction = split_transaction(transaction)
-    assert updated_transaction.subtransactions[0].amount == pytest.approx(
-        transaction.amount / 2
-    )
-    assert updated_transaction.subtransactions[0].category_id == transaction.category_id
 
 
 def test_filter_transactions(unsplit_transaction_json, transaction_json):

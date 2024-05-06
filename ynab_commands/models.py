@@ -1,11 +1,23 @@
 from __future__ import annotations
 
+from collections import Counter
 from enum import IntEnum
-from typing import Any, Iterator, Literal
+from typing import Any, Iterator, List, Literal
 
 from pydantic import BaseModel
 
 FLAG_COLOR = Literal["red", "orange", "yellow", "green", "blue", "purple"]
+
+
+class MilliUnits(int):
+    def __repr__(self):
+        return f"£{abs(self / 1000)}"
+
+    def __add__(self, other) -> MilliUnits:
+        return MilliUnits(super().__add__(other))
+
+    def __radd__(self, other) -> MilliUnits:
+        return self.__add__(other)
 
 
 class DateFormat(BaseModel):
@@ -65,7 +77,7 @@ class BudgetSummaryResponse(BaseModel):
 
 
 class BaseTransaction(BaseModel):
-    amount: int
+    amount: MilliUnits
     category_id: str | None
     payee_id: str | None
     payee_name: str | None
@@ -73,7 +85,7 @@ class BaseTransaction(BaseModel):
 
 
 class SaveSubTransaction(BaseTransaction):
-    amount: int
+    amount: MilliUnits
 
 
 class SubTransaction(BaseTransaction):
@@ -93,6 +105,21 @@ class SaveTransactionWrapper(BaseTransaction):
     flag_color: FLAG_COLOR | None
     import_id: str | None
     subtransactions: list[SaveSubTransaction] | None
+
+
+class SaveTransactionWithIdOrImportId(BaseTransaction):
+    id: str
+    amount: MilliUnits | None
+    account_id: str | None
+    date: str | None
+    approved: bool | None
+    cleared: str | None
+    flag_color: FLAG_COLOR | None
+    subtransactions: list[SaveSubTransaction]
+
+
+class PatchTransactionWrapper(BaseModel):
+    transactions: List[SaveTransactionWithIdOrImportId]
 
 
 class TransactionDetail(BaseTransaction):
@@ -136,11 +163,19 @@ class TransactionsResponse(BaseModel):
         return len(accounts)
 
     @property
-    def transaction_total(self) -> int:
-        return sum(transaction.amount for transaction in self.transactions)
+    def transaction_total(self) -> MilliUnits:
+        return MilliUnits(sum(transaction.amount for transaction in self.transactions))
 
     def get_transactions_to_split(self) -> TransactionsResponse:
         return TransactionsResponse(
             transactions=[t for t in self.transactions if t.should_split],
             server_knowledge=self.server_knowledge,
         )
+
+    def print_transaction_info(self) -> None:
+        account_names = [transaction.account_name for transaction in self.transactions]
+        account_counts = Counter(account_names)
+
+        print(repr(self.transaction_total))
+        for account, count in account_counts.items():
+            print(f"{account}: {count} transactions")
