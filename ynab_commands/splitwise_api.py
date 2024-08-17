@@ -62,9 +62,8 @@ class SplitwiseAPI:
         log.debug(f"created_expense: {expense.dict()}")
 
         expense, errors = self._api.createExpense(expense)
-        log.debug("Expense added to splitwise with errors: %s", errors)
 
         if errors is not None:
-            raise errors
-
-        print(f"{total:.2f} added to splitwise")
+            log.error("An error occurred in updating splitwise: %s", errors.getErrors())
+        else:
+            print(f"{total:.2f} added to splitwise")
