@@ -1,6 +1,4 @@
 # Todo
-[] Add sync with splitwise
-[] Change Put to Patch to make it faster
 [] containerize and put online with a cron job to run it
 
 ### Spltwise sync
