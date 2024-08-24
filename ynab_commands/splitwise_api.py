@@ -29,7 +29,8 @@ class SplitwiseAPI:
         self, description: str, total: float, friend_id: int
     ) -> ExpenseData:
         self._current_user = self._api.getCurrentUser()
-        owed_share = total / 2
+        owed_share = round(total / 2.0, 2)
+        adjusted_owed_share = total - owed_share
         return ExpenseData(
             **{
                 "description": description,
@@ -38,7 +39,7 @@ class SplitwiseAPI:
                     {
                         "id": self._current_user.id,
                         "paid_share": total,
-                        "owed_share": owed_share,
+                        "owed_share": adjusted_owed_share,
                     },
                     {
                         "id": friend_id,
