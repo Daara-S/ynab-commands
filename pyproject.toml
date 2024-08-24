@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ynab-commands"
-version = "0.3.0"
+version = "0.3.1"
 description = ""
 authors = ["Daara Shaw"]
 readme = "README.md"
