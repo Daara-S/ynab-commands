@@ -1,11 +1,13 @@
 import json
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import pytest
 import responses
 from requests import Session
 
 from ynab_commands.config import Config
+from ynab_commands.splitwise_api import SplitwiseAPI
 from ynab_commands.ynab_api import YNABApi
 
 DATA_PATH = Path(__file__).parent / "data"
@@ -20,6 +22,19 @@ def requests_mock():
 @pytest.fixture
 def config():
     return Config()
+
+
+@pytest.fixture
+def splitwise_api(config: Config):
+    mock_api = MagicMock()
+
+    with patch("splitwise.Splitwise", return_value=mock_api):
+        splitwise_api_instance = SplitwiseAPI(
+            consumer_secret=config.splitwise_consumer_key,
+            consumer_key=config.splitwise_consumer_key,
+            api_key=config.splitwise_api_key,
+        )
+        yield splitwise_api_instance
 
 
 @pytest.fixture()

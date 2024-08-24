@@ -1,7 +1,7 @@
 import logging
 
 from pydantic import SecretStr
-from splitwise import Splitwise, User
+from splitwise import Splitwise
 from splitwise.user import Friend
 
 from ynab_commands.models import ExpenseData
@@ -11,7 +11,6 @@ log = logging.getLogger(__name__)
 
 class SplitwiseAPI:
     _api: Splitwise
-    _current_user: User
 
     def __init__(
         self, consumer_key: SecretStr, consumer_secret: SecretStr, api_key: SecretStr
@@ -21,7 +20,6 @@ class SplitwiseAPI:
             consumer_secret=consumer_secret.get_secret_value(),
             api_key=api_key.get_secret_value(),
         )
-        self._current_user = self._api.getCurrentUser()
 
     def _get_wife(self, first_name: str) -> Friend:
         friends = self._api.getFriends()
@@ -30,6 +28,7 @@ class SplitwiseAPI:
     def _create_expense(
         self, description: str, total: float, friend_id: int
     ) -> ExpenseData:
+        self._current_user = self._api.getCurrentUser()
         owed_share = total / 2
         return ExpenseData(
             **{
